@@ -23,24 +23,6 @@ jobs:
       - name: Install cargo-ndk
         run: cargo install cargo-ndk
 
-      - name: Cache Rust cargo registry
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-
-      - name: Cache Rust build target
-        uses: actions/cache@v4
-        with:
-          path: rust/target
-          key: ${{ runner.os }}-rust-target-${{ hashFiles('rust/Cargo.lock', 'rust/src/**/*.rs') }}
-          restore-keys: |
-            ${{ runner.os }}-rust-target-
-
       - name: Build for arm64-v8a
         working-directory: rust
         run: cargo ndk -t arm64-v8a build --release
@@ -104,8 +86,6 @@ jobs:
         run: |
           gradle assembleRelease \
             --no-daemon \
-            --build-cache \
-            --configuration-cache \
             --parallel
 
       - name: Upload Release APK
