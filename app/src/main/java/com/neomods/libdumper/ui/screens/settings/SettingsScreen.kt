@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -304,26 +305,44 @@ fun LanguageDialog(
     onLanguageSelected: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val chunks = supportedLanguages.chunked(2)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(20.dp),
         title = { Text(text = stringResource(R.string.language), style = MaterialTheme.typography.titleMedium) },
         text = {
-            Column {
-                supportedLanguages.forEach { lang ->
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                chunks.forEach { row ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onLanguageSelected(lang.code) }
-                            .padding(vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        RadioButton(
-                            selected = currentLang == lang.code,
-                            onClick = { onLanguageSelected(lang.code) }
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = lang.displayName, style = MaterialTheme.typography.bodyLarge)
+                        row.forEach { lang ->
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { onLanguageSelected(lang.code) }
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .padding(vertical = 8.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = currentLang == lang.code,
+                                    onClick = { onLanguageSelected(lang.code) },
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = lang.displayName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                        if (row.size == 1) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
                 }
             }
