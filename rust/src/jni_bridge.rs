@@ -19,7 +19,7 @@ lazy_static::lazy_static! {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeLoadElf(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeLoadElf(
     mut env: JNIEnv,
     _class: JClass,
     path: JString,
@@ -75,7 +75,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeLoa
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeValidateElf(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeValidateElf(
     mut env: JNIEnv,
     _class: JClass,
     path: JString,
@@ -93,7 +93,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeVal
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeExtractSymbols(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeExtractSymbols(
     mut env: JNIEnv,
     _class: JClass,
     path: JString,
@@ -170,7 +170,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeExt
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeReconstructClasses(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeReconstructClasses(
     mut env: JNIEnv,
     _class: JClass,
     symbols_json: JString,
@@ -236,7 +236,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeRec
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeDetectNamespaces(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeDetectNamespaces(
     mut env: JNIEnv,
     _class: JClass,
     symbols_json: JString,
@@ -307,7 +307,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeDet
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGenerateDumpCpp(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeGenerateDumpCpp(
     mut env: JNIEnv,
     _class: JClass,
     classes_json: JString,
@@ -371,7 +371,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGen
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGenerateSymbolTable(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeGenerateSymbolTable(
     mut env: JNIEnv,
     _class: JClass,
     symbols_json: JString,
@@ -407,7 +407,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGen
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGenerateJsonExport(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeGenerateJsonExport(
     mut env: JNIEnv,
     _class: JClass,
     elf_info_json: JString,
@@ -516,7 +516,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGen
 }
 
 #[no_mangle]
-pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_nativeGetVersion(
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeGetVersion(
     mut env: JNIEnv,
     _class: JClass,
 ) -> jstring {
