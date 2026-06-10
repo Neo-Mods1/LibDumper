@@ -105,7 +105,10 @@ class SettingsManager @Inject constructor(
     val recentLibraries: Flow<List<String>> = dataStore.data.map { preferences ->
         val json = preferences[RECENT_LIBRARIES] ?: "[]"
         try {
-            com.google.gson.Gson().fromJson(json, Array<String>::class.java)?.toList() ?: emptyList()
+            com.google.gson.Gson().fromJson(json, Array<String>::class.java)
+                ?.filterNotNull()
+                ?.filter { it.isNotBlank() }
+                ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
@@ -154,7 +157,10 @@ class SettingsManager @Inject constructor(
         dataStore.edit { preferences ->
             val currentList = try {
                 val json = preferences[RECENT_LIBRARIES] ?: "[]"
-                com.google.gson.Gson().fromJson(json, Array<String>::class.java)?.toMutableList() ?: mutableListOf()
+                com.google.gson.Gson().fromJson(json, Array<String>::class.java)
+                    ?.filterNotNull()
+                    ?.filter { it.isNotBlank() }
+                    ?.toMutableList() ?: mutableListOf()
             } catch (e: Exception) {
                 mutableListOf()
             }

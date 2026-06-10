@@ -355,7 +355,7 @@ fun RecentLibrariesCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            libraries.take(5).forEach { path ->
+            libraries.filter { !it.isNullOrBlank() }.take(5).forEach { path ->
                 val fileName = path.substringAfterLast("/")
                 Text(
                     text = fileName,
