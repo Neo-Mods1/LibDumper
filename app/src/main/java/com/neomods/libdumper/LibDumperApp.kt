@@ -4,13 +4,20 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import com.neomods.libdumper.crash.CrashHandler
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class LibDumperApp : Application() {
 
+    private lateinit var crashHandler: CrashHandler
+
     override fun onCreate() {
         super.onCreate()
+        
+        crashHandler = CrashHandler(this)
+        crashHandler.init()
+        
         createNotificationChannels()
     }
 

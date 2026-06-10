@@ -72,7 +72,7 @@ jobs:
           path: app/src/main/jniLibs/
 
   build-android:
-    name: Build Android APK
+    name: Build Release APK
     runs-on: ubuntu-latest
     needs: build-rust
     steps:
@@ -105,23 +105,29 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Debug APK
-        run: gradle assembleDebug --no-daemon
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > app/release-key.jks
 
       - name: Build Release APK
         run: gradle assembleRelease --no-daemon
 
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: LibDumper-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Sign APK (fallback if keystore not in secrets)
+        if: failure()
+        run: |
+          echo "Build failed, attempting with debug signing..."
+          gradle assembleDebug --no-daemon
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: LibDumper-release
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/release/app-release-unsigned.apk
+            app/build/outputs/apk/debug/app-debug.apk
 
   release:
     name: Create Release
@@ -134,13 +140,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Debug APK
-        uses: actions/download-artifact@v4
-        with:
-          name: LibDumper-debug
-          path: ./artifacts
-
-      - name: Download Release APK
+      - name: Download APK
         uses: actions/download-artifact@v4
         with:
           name: LibDumper-release
@@ -149,7 +149,7 @@ jobs:
       - name: Get version from build.gradle.kts
         id: version
         run: |
-          VERSION=$(grep 'versionName' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          VERSION=$(grep 'versionName' app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
@@ -166,11 +166,11 @@ jobs:
             - Initial release
             
             ### Downloads
-            - **Debug APK**: For testing and development
-            - **Release APK**: For production use (unsigned)
+            - **app-release.apk**: Signed release APK
+            - **app-debug.apk**: Debug APK with crash logging
           files: |
+            ./artifacts/app-release.apk
             ./artifacts/app-debug.apk
-            ./artifacts/app-release-unsigned.apk
           draft: false
           prerelease: false
         env:

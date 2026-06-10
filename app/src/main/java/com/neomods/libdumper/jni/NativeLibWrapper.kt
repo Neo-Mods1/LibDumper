@@ -12,17 +12,24 @@ import com.google.gson.reflect.TypeToken
 class NativeLibWrapper {
 
     companion object {
+        private var nativeLoaded = false
+
         init {
             try {
                 System.loadLibrary("NeoLibDumper")
+                nativeLoaded = true
             } catch (e: UnsatisfiedLinkError) {
                 e.printStackTrace()
+                nativeLoaded = false
             }
         }
 
         private val gson = Gson()
 
+        fun isNativeAvailable(): Boolean = nativeLoaded
+
         fun loadElf(path: String): ElfInfo? {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val json = nativeLoadElf(path)
                 gson.fromJson(json, ElfInfo::class.java)
@@ -33,6 +40,7 @@ class NativeLibWrapper {
         }
 
         fun validateElf(path: String): Boolean {
+            if (!nativeLoaded) return false
             return try {
                 nativeValidateElf(path)
             } catch (e: Exception) {
@@ -45,6 +53,7 @@ class NativeLibWrapper {
             path: String,
             config: DumpConfig
         ): List<Symbol> {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val json = nativeExtractSymbols(
                     path,
@@ -66,6 +75,7 @@ class NativeLibWrapper {
             symbols: List<Symbol>,
             config: DumpConfig
         ): List<ClassInfo> {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val symbolsJson = gson.toJson(symbols)
                 val json = nativeReconstructClasses(
@@ -91,6 +101,7 @@ class NativeLibWrapper {
             classes: List<ClassInfo>,
             config: DumpConfig
         ): List<NamespaceInfo> {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val symbolsJson = gson.toJson(symbols)
                 val classesJson = gson.toJson(classes)
@@ -112,6 +123,7 @@ class NativeLibWrapper {
             namespaces: List<NamespaceInfo>,
             config: DumpConfig
         ): String {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val classesJson = gson.toJson(classes)
                 val namespacesJson = gson.toJson(namespaces)
@@ -131,6 +143,7 @@ class NativeLibWrapper {
         }
 
         fun generateSymbolTable(symbols: List<Symbol>): String {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val symbolsJson = gson.toJson(symbols)
                 nativeGenerateSymbolTable(symbolsJson)
@@ -146,6 +159,7 @@ class NativeLibWrapper {
             classes: List<ClassInfo>,
             namespaces: List<NamespaceInfo>
         ): String {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val elfInfoJson = gson.toJson(elfInfo)
                 val symbolsJson = gson.toJson(symbols)
@@ -164,6 +178,7 @@ class NativeLibWrapper {
         }
 
         fun getVersion(): String {
+            if (!nativeLoaded) return "1.0.0 (native not loaded)"
             return try {
                 nativeGetVersion()
             } catch (e: Exception) {

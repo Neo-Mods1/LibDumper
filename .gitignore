@@ -52,6 +52,7 @@ google-services.json
 # Signing
 *.jks
 *.keystore
+release-key.properties
 
 # Rust
 rust/target/

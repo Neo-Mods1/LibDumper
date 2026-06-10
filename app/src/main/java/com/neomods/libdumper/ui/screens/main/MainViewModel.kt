@@ -68,8 +68,14 @@ class MainViewModel @Inject constructor(
     fun selectLibrary(context: Context, uri: Uri) {
         viewModelScope.launch {
             try {
+                if (!NativeLibWrapper.isNativeAvailable()) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Native library not loaded. The app may not have the required .so files for your device architecture."
+                    )
+                    return@launch
+                }
+
                 val fileName = FileUtils.getFileName(context, uri)
-                val filePath = FileUtils.getFilePath(context, uri)
                 
                 if (!fileName.endsWith(".so")) {
                     _uiState.value = _uiState.value.copy(
@@ -79,12 +85,12 @@ class MainViewModel @Inject constructor(
                 }
 
                 val elfInfo = withContext(Dispatchers.IO) {
-                    val path = if (filePath.isNotEmpty()) filePath else {
-                        val tempFile = FileUtils.copyFileToInternal(context, uri, fileName)
-                        tempFile.absolutePath
+                    val tempFile = FileUtils.copyFileToInternal(context, uri, fileName)
+                    if (!tempFile.exists() || tempFile.length() == 0L) {
+                        throw IllegalStateException("Failed to copy file to internal storage")
                     }
-                    currentFilePath = path
-                    NativeLibWrapper.loadElf(path)
+                    currentFilePath = tempFile.absolutePath
+                    NativeLibWrapper.loadElf(tempFile.absolutePath)
                 }
 
                 if (elfInfo != null) {
@@ -93,12 +99,12 @@ class MainViewModel @Inject constructor(
                     settingsManager.addRecentLibrary(elfInfo.filePath)
                 } else {
                     _uiState.value = _uiState.value.copy(
-                        error = "Failed to load ELF file"
+                        error = "Failed to load ELF file. The file may be corrupt or not a valid ELF."
                     )
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    error = "Error selecting library: ${e.message}"
+                    error = "Error selecting library: ${e.message ?: e.toString()}"
                 )
             }
         }
