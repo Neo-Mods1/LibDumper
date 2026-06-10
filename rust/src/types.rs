@@ -1,15 +1,39 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Deserializer};
+
+fn deserialize_u64_from_number<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    match val {
+        serde_json::Value::Number(n) => {
+            if let Some(u) = n.as_u64() {
+                Ok(u)
+            } else if let Some(f) = n.as_f64() {
+                Ok(f as u64)
+            } else {
+                Err(serde::de::Error::custom(format!("cannot convert number to u64: {}", n)))
+            }
+        }
+        serde_json::Value::String(s) => {
+            s.parse::<u64>().map_err(serde::de::Error::custom)
+        }
+        _ => Err(serde::de::Error::custom(format!("expected number or string for u64, got: {}", val))),
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ElfInfo {
     pub file_name: String,
     pub file_path: String,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub file_size: u64,
     pub architecture: String,
     pub bit_width: u32,
     pub endian: String,
     pub elf_type: String,
     pub machine: String,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub entry_point: u64,
     pub is_valid: bool,
     pub is_shared_library: bool,
@@ -19,9 +43,13 @@ pub struct ElfInfo {
 pub struct Symbol {
     pub name: String,
     pub demangled_name: String,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub address: u64,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub rva: u64,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub file_offset: u64,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub size: u64,
     pub section: String,
     pub section_index: usize,
@@ -51,9 +79,13 @@ pub struct ClassInfo {
 pub struct MethodInfo {
     pub name: String,
     pub demangled_name: String,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub address: u64,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub rva: u64,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub file_offset: u64,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub size: u64,
     pub section: String,
     pub return_type: Option<String>,
@@ -121,6 +153,7 @@ pub struct DumpResult {
     pub total_classes: usize,
     pub total_methods: usize,
     pub total_namespaces: usize,
+    #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub dump_duration_ms: u64,
 }
 

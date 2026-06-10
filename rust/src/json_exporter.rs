@@ -35,6 +35,7 @@ pub struct JsonStatistics {
     pub total_destructors: usize,
     pub total_static_methods: usize,
     pub total_namespaces: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_u64_from_number")]
     pub dump_duration_ms: u64,
 }
 
