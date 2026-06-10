@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -83,12 +84,19 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.settings), fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.settings),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                            contentDescription = stringResource(R.string.back),
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 },
@@ -104,24 +112,25 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item { Spacer(modifier = Modifier.height(4.dp)) }
 
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = stringResource(R.string.appearance),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         SettingsRow(
                             title = stringResource(R.string.theme_mode),
                             value = when (currentTheme) {
@@ -131,7 +140,7 @@ fun SettingsScreen(
                             },
                             onClick = { showThemeDialog = true }
                         )
-                        HorizontalDivider()
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
                         SettingsRow(
                             title = stringResource(R.string.language),
                             value = supportedLanguages.find { it.code == currentLang }?.displayName ?: "English",
@@ -144,16 +153,17 @@ fun SettingsScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = stringResource(R.string.storage),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         SettingsRow(
                             title = stringResource(R.string.dump_location),
                             value = currentDumpLocation,
@@ -166,28 +176,29 @@ fun SettingsScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = stringResource(R.string.contact),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
                         ContactRow(title = stringResource(R.string.telegram)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/NeoModsChannel")))
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
                         ContactRow(title = stringResource(R.string.discussion)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+RYSsITD6K-U4NzI0")))
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
                         ContactRow(title = stringResource(R.string.github)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Neo-Mods1/Neo-Mods1")))
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
                         ContactRow(title = stringResource(R.string.youtube)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/@neo-modsyt?si=aHEpvVllsHPxnGck")))
                         }
@@ -195,7 +206,7 @@ fun SettingsScreen(
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 
@@ -243,22 +254,22 @@ fun SettingsRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = title, style = MaterialTheme.typography.bodyMedium)
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                modifier = Modifier.size(18.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -273,16 +284,16 @@ fun ContactRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 10.dp),
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = title, style = MaterialTheme.typography.bodyMedium)
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
         Icon(
             imageVector = Icons.Default.OpenInNew,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(18.dp)
         )
     }
 }
@@ -295,6 +306,7 @@ fun LanguageDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
         title = { Text(text = stringResource(R.string.language), style = MaterialTheme.typography.titleMedium) },
         text = {
             Column {
@@ -303,21 +315,21 @@ fun LanguageDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onLanguageSelected(lang.code) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
                             selected = currentLang == lang.code,
                             onClick = { onLanguageSelected(lang.code) }
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = lang.displayName, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(text = lang.displayName, style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel), style = MaterialTheme.typography.labelLarge) }
         }
     )
 }
@@ -330,6 +342,7 @@ fun ThemeDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
         title = { Text(text = stringResource(R.string.theme_mode), style = MaterialTheme.typography.titleMedium) },
         text = {
             Column {
@@ -339,7 +352,7 @@ fun ThemeDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel), style = MaterialTheme.typography.labelLarge) }
         }
     )
 }
@@ -354,12 +367,12 @@ fun ThemeOption(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(selected = selected, onClick = onClick)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text, style = MaterialTheme.typography.bodyMedium)
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text = text, style = MaterialTheme.typography.bodyLarge)
     }
 }
 
@@ -373,21 +386,22 @@ fun DumpLocationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
         title = { Text(text = stringResource(R.string.dump_location), style = MaterialTheme.typography.titleMedium) },
         text = {
             OutlinedTextField(
                 value = location,
                 onValueChange = { location = it },
-                label = { Text(stringResource(R.string.dump_location)) },
+                label = { Text(stringResource(R.string.dump_location), style = MaterialTheme.typography.bodyMedium) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
         },
         confirmButton = {
-            TextButton(onClick = { onLocationSelected(location) }) { Text(text = stringResource(R.string.save)) }
+            TextButton(onClick = { onLocationSelected(location) }) { Text(text = stringResource(R.string.save), style = MaterialTheme.typography.labelLarge) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss) { Text(text = stringResource(R.string.cancel), style = MaterialTheme.typography.labelLarge) }
         }
     )
 }

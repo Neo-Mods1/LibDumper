@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
@@ -31,6 +32,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -91,6 +95,7 @@ fun MainDumperScreen(
                 title = {
                     Text(
                         text = "Lib Dumper",
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -98,13 +103,15 @@ fun MainDumperScreen(
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
+                            contentDescription = "Settings",
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                     IconButton(onClick = onNavigateToAbout) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = "About"
+                            contentDescription = "About",
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 },
@@ -120,8 +127,8 @@ fun MainDumperScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item { Spacer(modifier = Modifier.height(4.dp)) }
 
@@ -220,17 +227,19 @@ fun MainDumperScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
-                    enabled = uiState.elfInfo != null && !uiState.isDumping
+                        .height(54.dp)
+                        .clip(RoundedCornerShape(14.dp)),
+                    enabled = uiState.elfInfo != null && !uiState.isDumping,
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
                         text = "Generate Dump",
-                        style = MaterialTheme.typography.titleSmall
+                        style = MaterialTheme.typography.titleMedium
                     )
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { Spacer(modifier = Modifier.height(12.dp)) }
         }
     }
 
@@ -271,12 +280,13 @@ fun SelectedLibraryCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -292,18 +302,18 @@ fun SelectedLibraryCard(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = "Loaded",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             if (elfInfo != null) {
-                CompactInfoRow("Name", elfInfo.fileName)
-                CompactInfoRow("Arch", elfInfo.architecture)
-                CompactInfoRow("Size", FileUtils.formatFileSize(elfInfo.fileSize))
-                CompactInfoRow(
+                InfoRow("Name", elfInfo.fileName)
+                InfoRow("Arch", elfInfo.architecture)
+                InfoRow("Size", FileUtils.formatFileSize(elfInfo.fileSize))
+                InfoRow(
                     "Status",
                     if (elfInfo.isValid) "Valid ELF" else "Invalid",
                     valueColor = if (elfInfo.isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
@@ -311,16 +321,20 @@ fun SelectedLibraryCard(
             } else {
                 Text(
                     text = "No library selected",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = onSelectLibrary,
-                modifier = Modifier.fillMaxWidth().height(40.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(46.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -329,17 +343,17 @@ fun SelectedLibraryCard(
                 Icon(
                     imageVector = Icons.Default.FolderOpen,
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(20.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = "Select Library", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Select Library", style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
 }
 
 @Composable
-fun CompactInfoRow(
+fun InfoRow(
     label: String,
     value: String,
     valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface
@@ -347,21 +361,21 @@ fun CompactInfoRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = valueColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f, fill = false).padding(start = 8.dp)
+            modifier = Modifier.weight(1f, fill = false).padding(start = 12.dp)
         )
     }
 }
@@ -373,29 +387,30 @@ fun RecentLibrariesCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "Recent Libraries",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             libraries.filter { !it.isNullOrBlank() }.take(5).forEach { path ->
                 val fileName = path.substringAfterLast("/")
                 Text(
                     text = fileName,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onLibrarySelected(path) }
-                        .padding(vertical = 6.dp),
+                        .padding(vertical = 8.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -414,16 +429,17 @@ fun ExpandableConfigCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = !expanded }
-                .padding(12.dp)
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -438,13 +454,13 @@ fun ExpandableConfigCard(
                 val enabledCount = checkboxes.count { it.second }
                 Text(
                     text = "$enabledCount/${checkboxes.size}",
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                     contentDescription = if (expanded) "Collapse" else "Expand",
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
 
@@ -454,9 +470,9 @@ fun ExpandableConfigCard(
                 exit = shrinkVertically()
             ) {
                 Column {
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     checkboxes.forEach { (label, checked, updater) ->
-                        CompactCheckboxRow(
+                        CheckboxRow(
                             label = label,
                             checked = checked,
                             onCheckedChange = { onConfigChange(updater(it)) }
@@ -469,7 +485,7 @@ fun ExpandableConfigCard(
 }
 
 @Composable
-fun CompactCheckboxRow(
+fun CheckboxRow(
     label: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -478,18 +494,22 @@ fun CompactCheckboxRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!checked) }
-            .padding(vertical = 4.dp),
+            .padding(vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.material3.Checkbox(
+        Checkbox(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(22.dp),
+            colors = CheckboxDefaults.colors(
+                checkedColor = MaterialTheme.colorScheme.primary,
+                uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         )
-        Spacer(modifier = Modifier.width(6.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -501,6 +521,7 @@ fun DumpProgressDialog(
 ) {
     AlertDialog(
         onDismissRequest = { },
+        shape = RoundedCornerShape(20.dp),
         title = {
             Text(text = "Dumping Library", style = MaterialTheme.typography.titleMedium)
         },
@@ -508,30 +529,30 @@ fun DumpProgressDialog(
             Column {
                 Text(
                     text = progress?.stage ?: "Starting...",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = progress?.message ?: "",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 LinearProgressIndicator(
                     progress = { progress?.progress ?: 0f },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "${((progress?.progress ?: 0f) * 100).toInt()}%",
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Cancel")
+                Text(text = "Cancel", style = MaterialTheme.typography.labelLarge)
             }
         }
     )
@@ -544,22 +565,23 @@ fun DumpCompleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
         title = {
             Text(text = "Dump Complete", style = MaterialTheme.typography.titleMedium)
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Library: ${result.elfInfo.fileName}", style = MaterialTheme.typography.bodySmall)
-                Text("Symbols: ${result.totalSymbols}", style = MaterialTheme.typography.bodySmall)
-                Text("Classes: ${result.totalClasses}", style = MaterialTheme.typography.bodySmall)
-                Text("Methods: ${result.totalMethods}", style = MaterialTheme.typography.bodySmall)
-                Text("Namespaces: ${result.totalNamespaces}", style = MaterialTheme.typography.bodySmall)
-                Text("Duration: ${result.dumpDurationMs}ms", style = MaterialTheme.typography.bodySmall)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Library: ${result.elfInfo.fileName}", style = MaterialTheme.typography.bodyMedium)
+                Text("Symbols: ${result.totalSymbols}", style = MaterialTheme.typography.bodyMedium)
+                Text("Classes: ${result.totalClasses}", style = MaterialTheme.typography.bodyMedium)
+                Text("Methods: ${result.totalMethods}", style = MaterialTheme.typography.bodyMedium)
+                Text("Namespaces: ${result.totalNamespaces}", style = MaterialTheme.typography.bodyMedium)
+                Text("Duration: ${result.dumpDurationMs}ms", style = MaterialTheme.typography.bodyMedium)
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "OK")
+                Text(text = "OK", style = MaterialTheme.typography.labelLarge)
             }
         }
     )
@@ -572,15 +594,16 @@ fun ErrorDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
         title = {
             Text(text = "Error", style = MaterialTheme.typography.titleMedium)
         },
         text = {
-            Text(text = message, style = MaterialTheme.typography.bodySmall)
+            Text(text = message, style = MaterialTheme.typography.bodyMedium)
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "OK")
+                Text(text = "OK", style = MaterialTheme.typography.labelLarge)
             }
         }
     )

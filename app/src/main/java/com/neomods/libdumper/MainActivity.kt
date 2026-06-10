@@ -7,9 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.neomods.libdumper.domain.ThemeMode
 import com.neomods.libdumper.storage.SettingsManager
@@ -25,19 +28,31 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsManager: SettingsManager
 
+    private var initialLocaleApplied = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val lang = settingsManager.language.value
-        applyLocale(lang)
+        val savedLang = settingsManager.language.value
+        applyLocale(savedLang)
 
         enableEdgeToEdge()
         setContent {
             val themeMode by settingsManager.themeMode.collectAsState()
             val currentLang by settingsManager.language.collectAsState()
 
+            var hasRecreated by remember { mutableStateOf(false) }
+
             LaunchedEffect(currentLang) {
-                applyLocale(currentLang)
+                if (initialLocaleApplied && !hasRecreated) {
+                    hasRecreated = true
+                    applyLocale(currentLang)
+                    recreate()
+                }
+            }
+
+            if (!initialLocaleApplied) {
+                initialLocaleApplied = true
             }
 
             LibDumperTheme(themeMode = themeMode) {
