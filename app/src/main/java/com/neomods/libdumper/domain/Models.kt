@@ -1,71 +1,73 @@
 package com.neomods.libdumper.domain
 
+import com.google.gson.annotations.SerializedName
+
 data class ElfInfo(
-    val fileName: String,
-    val filePath: String,
-    val fileSize: Long,
+    @SerializedName("file_name") val fileName: String,
+    @SerializedName("file_path") val filePath: String,
+    @SerializedName("file_size") val fileSize: Long,
     val architecture: String,
-    val bitWidth: Int,
+    @SerializedName("bit_width") val bitWidth: Int,
     val endian: String,
-    val elfType: String,
+    @SerializedName("elf_type") val elfType: String,
     val machine: String,
-    val entryPoint: Long,
-    val isValid: Boolean,
-    val isSharedLibrary: Boolean
+    @SerializedName("entry_point") val entryPoint: Long,
+    @SerializedName("is_valid") val isValid: Boolean,
+    @SerializedName("is_shared_library") val isSharedLibrary: Boolean
 )
 
 data class Symbol(
     val name: String,
-    val demangledName: String,
+    @SerializedName("demangled_name") val demangledName: String,
     val address: Long,
     val rva: Long,
-    val fileOffset: Long,
+    @SerializedName("file_offset") val fileOffset: Long,
     val size: Long,
     val section: String,
-    val sectionIndex: Int,
-    val symbolType: String,
+    @SerializedName("section_index") val sectionIndex: Int,
+    @SerializedName("symbol_type") val symbolType: String,
     val binding: String,
-    val isExported: Boolean,
-    val isImported: Boolean,
-    val isFunction: Boolean,
-    val isObject: Boolean
+    @SerializedName("is_exported") val isExported: Boolean,
+    @SerializedName("is_imported") val isImported: Boolean,
+    @SerializedName("is_function") val isFunction: Boolean,
+    @SerializedName("is_object") val isObject: Boolean
 )
 
 data class ClassInfo(
     val name: String,
     val namespace: String,
-    val fullPath: String,
+    @SerializedName("full_path") val fullPath: String,
     val methods: List<MethodInfo>,
     val constructors: List<MethodInfo>,
     val destructors: List<MethodInfo>,
-    val staticMethods: List<MethodInfo>,
-    val overloadedMethods: List<List<MethodInfo>>,
-    val baseClass: String?,
-    val derivedClasses: List<String>
+    @SerializedName("static_methods") val staticMethods: List<MethodInfo>,
+    @SerializedName("overloaded_methods") val overloadedMethods: List<List<MethodInfo>>,
+    @SerializedName("base_class") val baseClass: String?,
+    @SerializedName("derived_classes") val derivedClasses: List<String>
 )
 
 data class MethodInfo(
     val name: String,
-    val demangledName: String,
+    @SerializedName("demangled_name") val demangledName: String,
     val address: Long,
     val rva: Long,
-    val fileOffset: Long,
+    @SerializedName("file_offset") val fileOffset: Long,
     val size: Long,
     val section: String,
-    val returnType: String?,
+    @SerializedName("return_type") val returnType: String?,
     val parameters: List<String>,
-    val isStatic: Boolean,
-    val isVirtual: Boolean,
-    val isConst: Boolean,
-    val isOverloaded: Boolean,
-    val overloadIndex: Int
+    @SerializedName("is_static") val isStatic: Boolean,
+    @SerializedName("is_virtual") val isVirtual: Boolean,
+    @SerializedName("is_const") val isConst: Boolean,
+    @SerializedName("is_overloaded") val isOverloaded: Boolean,
+    @SerializedName("overload_index") val overloadIndex: Int
 )
 
 data class NamespaceInfo(
     val name: String,
-    val fullPath: String,
+    @SerializedName("full_path") val fullPath: String,
     val parent: String?,
-    val subNamespaces: List<String>,
+    @SerializedName("sub_namespaces") val subNamespaces: List<String>,
     val classes: List<String>,
     val functions: List<String>
 )
