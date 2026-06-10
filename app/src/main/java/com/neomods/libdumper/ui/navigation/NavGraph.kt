@@ -1,6 +1,7 @@
 package com.neomods.libdumper.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,11 +11,14 @@ import com.neomods.libdumper.ui.screens.main.MainDumperScreen
 import com.neomods.libdumper.ui.screens.permissions.PermissionScreen
 import com.neomods.libdumper.ui.screens.settings.SettingsScreen
 import com.neomods.libdumper.ui.screens.splash.SplashScreen
+import com.neomods.libdumper.utils.PermissionUtils
 
 @Composable
 fun LibDumperNavGraph(
     navController: NavHostController = rememberNavController()
 ) {
+    val context = LocalContext.current
+
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -22,7 +26,12 @@ fun LibDumperNavGraph(
         composable(Screen.Splash.route) {
             SplashScreen(
                 onSplashComplete = {
-                    navController.navigate(Screen.Permissions.route) {
+                    val destination = if (PermissionUtils.hasStoragePermission(context)) {
+                        Screen.Main.route
+                    } else {
+                        Screen.Permissions.route
+                    }
+                    navController.navigate(destination) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
