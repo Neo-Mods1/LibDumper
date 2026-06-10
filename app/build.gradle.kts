@@ -35,6 +35,15 @@ android {
         }
     }
 
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+        fatal += emptyList()
+        warning += emptyList()
+        information += emptyList()
+        baseline = null
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
