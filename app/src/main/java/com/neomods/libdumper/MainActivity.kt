@@ -1,5 +1,6 @@
 package com.neomods.libdumper
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,20 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsManager: SettingsManager
+
+    override fun attachBaseContext(newBase: Context) {
+        val lang = getLocaleFromPrefs(newBase)
+        if (lang.isNotEmpty()) {
+            val locale = Locale(lang)
+            Locale.setDefault(locale)
+            val config = newBase.resources.configuration
+            config.setLocale(locale)
+            config.setLayoutDirection(locale)
+            super.attachBaseContext(newBase.createConfigurationContext(config))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +68,20 @@ class MainActivity : ComponentActivity() {
         Locale.setDefault(locale)
         val config = resources.configuration
         config.setLocale(locale)
+        config.setLayoutDirection(locale)
         @Suppress("DEPRECATION")
         resources.updateConfiguration(config, resources.displayMetrics)
+
+        getSharedPreferences("locale_prefs", MODE_PRIVATE)
+            .edit().putString("lang", langCode).apply()
+    }
+
+    private fun getLocaleFromPrefs(context: Context): String {
+        return try {
+            context.getSharedPreferences("locale_prefs", MODE_PRIVATE)
+                .getString("lang", "") ?: ""
+        } catch (_: Exception) {
+            ""
+        }
     }
 }
