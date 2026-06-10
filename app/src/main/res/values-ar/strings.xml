@@ -51,6 +51,7 @@
     <string name="duration">المدة</string>
     <string name="telegram">تيليجرام</string>
     <string name="discussion">نقاش</string>
+    <string name="github">GitHub</string>
     <string name="youtube">يوتيوب</string>
     <string name="frontend_tech">الواجهة: Kotlin, Jetpack Compose, Material 3, Hilt, DataStore</string>
     <string name="backend_tech">الخلفية: Rust, JNI, goblin, cpp_demangle, serde</string>

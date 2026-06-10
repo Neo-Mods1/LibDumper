@@ -51,6 +51,7 @@
     <string name="duration">Duración</string>
     <string name="telegram">Telegram</string>
     <string name="discussion">Discusión</string>
+    <string name="github">GitHub</string>
     <string name="youtube">YouTube</string>
     <string name="frontend_tech">Frontend: Kotlin, Jetpack Compose, Material 3, Hilt, DataStore</string>
     <string name="backend_tech">Backend: Rust, JNI, goblin, cpp_demangle, serde</string>

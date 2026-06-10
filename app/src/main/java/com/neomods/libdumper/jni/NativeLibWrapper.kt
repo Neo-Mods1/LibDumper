@@ -61,7 +61,29 @@ class NativeLibWrapper {
                     config.extractDynsym,
                     config.extractExported,
                     config.extractImported,
-                    config.dumpRawNames
+                    config.dumpRawNames,
+                    config.generateCppReconstruction,
+                    config.groupMethodsIntoClasses,
+                    config.groupStaticMethods,
+                    config.detectConstructors,
+                    config.detectDestructors,
+                    config.detectOverloadedMethods,
+                    config.detectNamespaces,
+                    config.generateComments,
+                    config.includeMethodSignatures,
+                    config.includeReturnTypes,
+                    config.includeParameterTypes,
+                    config.attemptInheritanceDetection,
+                    config.includeVirtualAddresses,
+                    config.includeRva,
+                    config.includeFileOffsets,
+                    config.includeSymbolSizes,
+                    config.includeSectionNames,
+                    config.generateDumpCpp,
+                    config.generateSymbolTable,
+                    config.generateCredits,
+                    config.generateDumpInfo,
+                    config.generateJson
                 )
                 val type = object : TypeToken<List<Symbol>>() {}.type
                 gson.fromJson(json, type)
@@ -194,7 +216,29 @@ class NativeLibWrapper {
             extractDynsym: Boolean,
             extractExported: Boolean,
             extractImported: Boolean,
-            dumpRawNames: Boolean
+            dumpRawNames: Boolean,
+            generateCppReconstruction: Boolean,
+            groupMethodsIntoClasses: Boolean,
+            groupStaticMethods: Boolean,
+            detectConstructors: Boolean,
+            detectDestructors: Boolean,
+            detectOverloadedMethods: Boolean,
+            detectNamespaces: Boolean,
+            generateComments: Boolean,
+            includeMethodSignatures: Boolean,
+            includeReturnTypes: Boolean,
+            includeParameterTypes: Boolean,
+            attemptInheritanceDetection: Boolean,
+            includeVirtualAddresses: Boolean,
+            includeRva: Boolean,
+            includeFileOffsets: Boolean,
+            includeSymbolSizes: Boolean,
+            includeSectionNames: Boolean,
+            generateDumpCpp: Boolean,
+            generateSymbolTable: Boolean,
+            generateCredits: Boolean,
+            generateDumpInfo: Boolean,
+            generateJson: Boolean
         ): String
 
         private external fun nativeReconstructClasses(

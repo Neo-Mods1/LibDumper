@@ -51,6 +51,7 @@
     <string name="duration">耗时</string>
     <string name="telegram">Telegram</string>
     <string name="discussion">讨论组</string>
+    <string name="github">GitHub</string>
     <string name="youtube">YouTube</string>
     <string name="frontend_tech">前端: Kotlin, Jetpack Compose, Material 3, Hilt, DataStore</string>
     <string name="backend_tech">后端: Rust, JNI, goblin, cpp_demangle, serde</string>
