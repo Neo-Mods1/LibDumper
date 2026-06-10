@@ -11,7 +11,10 @@ import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.ThemeMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,17 +55,25 @@ class SettingsManager @Inject constructor(
         private val RECENT_LIBRARIES = stringPreferencesKey("recent_libraries")
     }
 
-    val themeMode: Flow<ThemeMode> = dataStore.data.map { preferences ->
+    val themeMode: StateFlow<ThemeMode> = dataStore.data.map { preferences ->
         when (preferences[THEME_MODE]) {
             "LIGHT" -> ThemeMode.LIGHT
             "DARK" -> ThemeMode.DARK
             else -> ThemeMode.SYSTEM
         }
-    }
+    }.stateIn(
+        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ThemeMode.SYSTEM
+    )
 
-    val dumpLocation: Flow<String> = dataStore.data.map { preferences ->
+    val dumpLocation: StateFlow<String> = dataStore.data.map { preferences ->
         preferences[DUMP_LOCATION] ?: "/storage/emulated/0/Dumper"
-    }
+    }.stateIn(
+        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = "/storage/emulated/0/Dumper"
+    )
 
     val dumpConfig: Flow<DumpConfig> = dataStore.data.map { preferences ->
         DumpConfig(

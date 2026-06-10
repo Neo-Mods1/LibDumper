@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.neomods.libdumper.domain.ThemeMode
 import com.neomods.libdumper.storage.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,24 +16,19 @@ class SettingsViewModel @Inject constructor(
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
-    private val _themeMode = MutableStateFlow(ThemeMode.SYSTEM)
-    val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
+    val themeMode: StateFlow<ThemeMode> = settingsManager.themeMode
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ThemeMode.SYSTEM
+        )
 
-    private val _dumpLocation = MutableStateFlow("/storage/emulated/0/Dumper")
-    val dumpLocation: StateFlow<String> = _dumpLocation.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            settingsManager.themeMode.collect { mode ->
-                _themeMode.value = mode
-            }
-        }
-        viewModelScope.launch {
-            settingsManager.dumpLocation.collect { location ->
-                _dumpLocation.value = location
-            }
-        }
-    }
+    val dumpLocation: StateFlow<String> = settingsManager.dumpLocation
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "/storage/emulated/0/Dumper"
+        )
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
@@ -47,3 +42,4 @@ class SettingsViewModel @Inject constructor(
         }
     }
 }
+

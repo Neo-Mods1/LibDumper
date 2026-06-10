@@ -181,15 +181,15 @@ fun SettingsScreen(
                         ContactRow(
                             title = "Telegram",
                             onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PLACEHOLDER_GROUP"))
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/NeoModsChannel"))
                                 context.startActivity(intent)
                             }
                         )
 
                         ContactRow(
-                            title = "Discord",
+                            title = "Discussion",
                             onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/PLACEHOLDER"))
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+RYSsITD6K-U4NzI0"))
                                 context.startActivity(intent)
                             }
                         )
@@ -197,7 +197,7 @@ fun SettingsScreen(
                         ContactRow(
                             title = "GitHub",
                             onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/PLACEHOLDER"))
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Neo-Mods1/Neo-Mods1"))
                                 context.startActivity(intent)
                             }
                         )
@@ -205,7 +205,7 @@ fun SettingsScreen(
                         ContactRow(
                             title = "Website",
                             onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://PLACEHOLDER"))
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/@neo-modsyt?si=aHEpvVllsHPxnGck"))
                                 context.startActivity(intent)
                             }
                         )
