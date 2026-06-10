@@ -53,7 +53,16 @@ class SettingsManager @Inject constructor(
         private val GENERATE_DUMP_INFO = booleanPreferencesKey("generate_dump_info")
         private val GENERATE_JSON = booleanPreferencesKey("generate_json")
         private val RECENT_LIBRARIES = stringPreferencesKey("recent_libraries")
+        private val LANGUAGE = stringPreferencesKey("language")
     }
+
+    val language: StateFlow<String> = dataStore.data.map { preferences ->
+        preferences[LANGUAGE] ?: "en"
+    }.stateIn(
+        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = "en"
+    )
 
     val themeMode: StateFlow<ThemeMode> = dataStore.data.map { preferences ->
         when (preferences[THEME_MODE]) {
@@ -117,6 +126,12 @@ class SettingsManager @Inject constructor(
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { preferences ->
             preferences[THEME_MODE] = mode.name
+        }
+    }
+
+    suspend fun setLanguage(lang: String) {
+        dataStore.edit { preferences ->
+            preferences[LANGUAGE] = lang
         }
     }
 

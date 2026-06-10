@@ -11,7 +11,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -19,36 +18,54 @@ import com.neomods.libdumper.domain.ThemeMode
 
 private val DarkColorScheme = darkColorScheme(
     primary = AccentBlue,
-    secondary = AccentTeal,
-    tertiary = AccentPurple,
-    background = DarkBackground,
-    surface = DarkSurface,
-    surfaceVariant = DarkSurfaceVariant,
     onPrimary = Color.White,
+    primaryContainer = AccentBlue.copy(alpha = 0.15f),
+    onPrimaryContainer = AccentBlue,
+    secondary = AccentTeal,
     onSecondary = Color.White,
+    secondaryContainer = AccentTeal.copy(alpha = 0.15f),
+    onSecondaryContainer = AccentTeal,
+    tertiary = AccentPurple,
     onTertiary = Color.White,
-    onBackground = Color(0xFFE6E1E5),
-    onSurface = Color(0xFFE6E1E5),
-    onSurfaceVariant = Color(0xFFCAC4D0),
+    tertiaryContainer = AccentPurple.copy(alpha = 0.15f),
+    onTertiaryContainer = AccentPurple,
+    background = DarkBackground,
+    onBackground = TextPrimaryDark,
+    surface = DarkSurface,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = TextSecondaryDark,
+    outline = DarkCardBorder,
     error = AccentRed,
     onError = Color.White,
+    errorContainer = AccentRed.copy(alpha = 0.15f),
+    onErrorContainer = AccentRed,
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = AccentBlue,
-    secondary = AccentTeal,
-    tertiary = AccentPurple,
-    background = LightBackground,
-    surface = LightSurface,
-    surfaceVariant = LightSurfaceVariant,
     onPrimary = Color.White,
+    primaryContainer = AccentBlue.copy(alpha = 0.12f),
+    onPrimaryContainer = AccentBlue,
+    secondary = AccentTeal,
     onSecondary = Color.White,
+    secondaryContainer = AccentTeal.copy(alpha = 0.12f),
+    onSecondaryContainer = AccentTeal,
+    tertiary = AccentPurple,
     onTertiary = Color.White,
+    tertiaryContainer = AccentPurple.copy(alpha = 0.12f),
+    onTertiaryContainer = AccentPurple,
+    background = LightBackground,
     onBackground = TextPrimary,
+    surface = LightSurface,
     onSurface = TextPrimary,
+    surfaceVariant = LightSurfaceVariant,
     onSurfaceVariant = TextSecondary,
+    outline = LightCardBorder,
     error = AccentRed,
     onError = Color.White,
+    errorContainer = AccentRed.copy(alpha = 0.12f),
+    onErrorContainer = AccentRed,
 )
 
 @Composable

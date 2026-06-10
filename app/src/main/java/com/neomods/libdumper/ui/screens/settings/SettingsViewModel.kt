@@ -30,6 +30,13 @@ class SettingsViewModel @Inject constructor(
             initialValue = "/storage/emulated/0/Dumper"
         )
 
+    val language: StateFlow<String> = settingsManager.language
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = "en"
+        )
+
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             settingsManager.setThemeMode(mode)
@@ -41,5 +48,10 @@ class SettingsViewModel @Inject constructor(
             settingsManager.setDumpLocation(location)
         }
     }
-}
 
+    fun setLanguage(lang: String) {
+        viewModelScope.launch {
+            settingsManager.setLanguage(lang)
+        }
+    }
+}
