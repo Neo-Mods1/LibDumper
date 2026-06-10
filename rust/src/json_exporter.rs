@@ -24,16 +24,27 @@ pub struct JsonMetadata {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JsonStatistics {
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_symbols: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub exported_symbols: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub imported_symbols: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub function_symbols: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub object_symbols: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_classes: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_methods: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_constructors: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_destructors: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_static_methods: usize,
+    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_namespaces: usize,
     #[serde(deserialize_with = "crate::types::deserialize_u64_from_number")]
     pub dump_duration_ms: u64,

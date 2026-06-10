@@ -22,6 +22,28 @@ where
     }
 }
 
+pub fn deserialize_usize_from_number<'de, D>(deserializer: D) -> Result<usize, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let val = serde_json::Value::deserialize(deserializer)?;
+    match val {
+        serde_json::Value::Number(n) => {
+            if let Some(u) = n.as_u64() {
+                Ok(u as usize)
+            } else if let Some(f) = n.as_f64() {
+                Ok(f as usize)
+            } else {
+                Err(serde::de::Error::custom(format!("cannot convert number to usize: {}", n)))
+            }
+        }
+        serde_json::Value::String(s) => {
+            s.parse::<usize>().map_err(serde::de::Error::custom)
+        }
+        _ => Err(serde::de::Error::custom(format!("expected number or string for usize, got: {}", val))),
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ElfInfo {
     pub file_name: String,
@@ -52,6 +74,7 @@ pub struct Symbol {
     #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub size: u64,
     pub section: String,
+    #[serde(deserialize_with = "deserialize_usize_from_number")]
     pub section_index: usize,
     pub symbol_type: String,
     pub binding: String,
@@ -94,6 +117,7 @@ pub struct MethodInfo {
     pub is_virtual: bool,
     pub is_const: bool,
     pub is_overloaded: bool,
+    #[serde(deserialize_with = "deserialize_usize_from_number")]
     pub overload_index: usize,
 }
 
@@ -149,9 +173,13 @@ pub struct DumpResult {
     pub dump_info: Option<String>,
     pub credits: Option<String>,
     pub json_export: Option<String>,
+    #[serde(deserialize_with = "deserialize_usize_from_number")]
     pub total_symbols: usize,
+    #[serde(deserialize_with = "deserialize_usize_from_number")]
     pub total_classes: usize,
+    #[serde(deserialize_with = "deserialize_usize_from_number")]
     pub total_methods: usize,
+    #[serde(deserialize_with = "deserialize_usize_from_number")]
     pub total_namespaces: usize,
     #[serde(deserialize_with = "deserialize_u64_from_number")]
     pub dump_duration_ms: u64,
