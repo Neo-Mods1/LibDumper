@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lib Dumper</string>
-    <string name="splash_subtitle">ELF Analysis & Symbol Dumper</string>
+    <string name="splash_subtitle">ELF Analysis &amp; Symbol Dumper</string>
     <string name="grant_permissions">Grant Permissions</string>
     <string name="permissions_description">Lib Dumper requires access to storage in order to analyze native libraries and save generated dumps.</string>
     <string name="continue_button">Continue</string>
