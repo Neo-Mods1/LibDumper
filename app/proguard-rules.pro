@@ -33,7 +33,6 @@
 -keep class * extends androidx.compose.runtime.internal.ComposableLambda { *; }
 
 # Keep all Composable functions and their generated classes
--keep class ** { * extends androidx.compose.runtime.Composer; }
 -keepclassmembers class * {
     @androidx.compose.runtime.Composable <methods>;
 }
