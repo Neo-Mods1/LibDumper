@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Process
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -156,7 +157,7 @@ class CrashActivity : Activity() {
             startActivity(intent)
         }
         finish()
-        Process.killProcess(android.os.Process.myPid())
+        Process.killProcess(Process.myPid())
     }
 
     private fun dp(value: Int): Int {
