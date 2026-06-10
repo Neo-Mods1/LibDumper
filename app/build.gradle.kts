@@ -38,9 +38,6 @@ android {
     lint {
         checkReleaseBuilds = false
         abortOnError = false
-        fatal += emptyList()
-        warning += emptyList()
-        information += emptyList()
         baseline = null
     }
 
@@ -77,10 +74,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
     }
@@ -96,6 +89,10 @@ android {
             jniLibs.srcDirs("src/main/jniLibs")
         }
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {

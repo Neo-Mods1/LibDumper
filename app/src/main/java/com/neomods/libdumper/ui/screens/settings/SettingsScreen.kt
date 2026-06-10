@@ -203,7 +203,7 @@ fun SettingsScreen(
                         )
 
                         ContactRow(
-                            title = "Website",
+                            title = "YouTube",
                             onClick = {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/@neo-modsyt?si=aHEpvVllsHPxnGck"))
                                 context.startActivity(intent)
