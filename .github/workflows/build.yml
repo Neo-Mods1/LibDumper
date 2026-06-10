@@ -102,14 +102,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --parallel
+        run: gradle assembleDebug --no-daemon
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon --parallel
+        run: gradle assembleRelease --no-daemon
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
