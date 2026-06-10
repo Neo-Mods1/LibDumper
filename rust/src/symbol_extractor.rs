@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use goblin::elf::Elf;
-use goblin::elf::sym::{Sym, STB_GLOBAL, STB_WEAK, STT_FUNC, STT_OBJECT, STT_NOTYPE};
+use goblin::elf::sym::{Sym, STB_GLOBAL, STB_WEAK, STT_FUNC, STT_OBJECT, STT_NOTYPE, STT_SECTION, STT_FILE, STT_COMMON, STT_TLS};
 
 use crate::types::{Symbol, DumpConfig};
 use crate::demangler::Demangler;

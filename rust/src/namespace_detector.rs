@@ -157,7 +157,7 @@ impl NamespaceDetector {
         output.push_str(&format!("{}}}\n\n", indent_str));
     }
 
-    pub fn find_root_namespaces(&self, namespaces: &[NamespaceInfo]) -> Vec<&NamespaceInfo> {
+    pub fn find_root_namespaces<'a>(&self, namespaces: &'a [NamespaceInfo]) -> Vec<&'a NamespaceInfo> {
         namespaces.iter()
             .filter(|ns| ns.parent.is_none())
             .collect()

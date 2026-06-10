@@ -107,7 +107,7 @@ impl ClassReconstructor {
         }
     }
 
-    fn build_method_info(&self, symbol: &Symbol, class_name: &str, config: &DumpConfig) -> MethodInfo {
+    fn build_method_info(&self, symbol: &Symbol, _class_name: &str, config: &DumpConfig) -> MethodInfo {
         let demangled = &symbol.demangled_name;
         
         let return_type = if config.include_return_types {
@@ -164,20 +164,18 @@ impl ClassReconstructor {
     }
 
     fn detect_inheritance(&self, classes: &mut Vec<ClassInfo>) {
-        let class_names: Vec<String> = classes.iter().map(|c| c.name.clone()).collect();
-        
         for i in 0..classes.len() {
             for j in 0..classes.len() {
                 if i == j {
                     continue;
                 }
                 
-                let parent_name = &classes[j].name;
-                let child_name = &classes[i].name;
+                let parent_name = classes[j].name.clone();
+                let child_name = classes[i].name.clone();
                 
-                if self.could_be_derived(child_name, parent_name) {
+                if self.could_be_derived(&child_name, &parent_name) {
                     classes[i].base_class = Some(parent_name.clone());
-                    classes[j].derived_classes.push(child_name.clone());
+                    classes[j].derived_classes.push(child_name);
                 }
             }
         }
@@ -211,7 +209,7 @@ impl ClassReconstructor {
     pub fn generate_cpp_output(
         &self,
         classes: &[ClassInfo],
-        namespaces: &[crate::types::NamespaceInfo],
+        _namespaces: &[crate::types::NamespaceInfo],
         config: &DumpConfig,
     ) -> String {
         let mut output = String::new();
