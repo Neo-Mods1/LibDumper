@@ -9,6 +9,8 @@
 -keep class com.neomods.libdumper.crash.** { *; }
 -keep class com.neomods.libdumper.jni.** { *; }
 -keep class com.neomods.libdumper.domain.** { *; }
+-keep class com.neomods.libdumper.ui.screens.** { *; }
+-keep class com.neomods.libdumper.ui.theme.** { *; }
 
 # Keep JNI methods
 -keepclasseswithmembernames class * {
@@ -21,6 +23,28 @@
 
 # Keep Compose
 -keep class androidx.compose.** { *; }
+-dontwarn androidx.compose.**
+-keepattributes LocalVariableTable,LineNumberTable
+
+# Keep Compose stable/Unstable markers
+-keep class androidx.compose.runtime.internal.ComposableLambda { *; }
+-keep class androidx.compose.runtime.internal.ComposableLambdaN { *; }
+-keep class androidx.compose.runtime.internal.ComposableSingletons$* { *; }
+-keep class * extends androidx.compose.runtime.internal.ComposableLambda { *; }
+
+# Keep all Composable functions and their generated classes
+-keep class ** { * extends androidx.compose.runtime.Composer; }
+-keepclassmembers class * {
+    @androidx.compose.runtime.Composable <methods>;
+}
+-keep class androidx.compose.runtime.CompositionKt { *; }
+-keep class androidx.compose.runtime.RecomposeScopeImpl { *; }
+-keep class androidx.compose.runtime.Recomposer { *; }
+-keep class androidx.compose.runtime.internal.ComposableLambda { *; }
+
+# Keep Compose UI internals that R8 may break
+-keep class androidx.compose.ui.platform.AndroidUiFrameClock { *; }
+-keep class androidx.compose.ui.platform.AndroidUiDispatcher { *; }
 
 # Keep Gson
 -keepattributes Signature
