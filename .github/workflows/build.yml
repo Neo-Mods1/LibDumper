@@ -29,11 +29,17 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            rust/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('rust/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
-            ${{ runner.os }}-rust-
+
+      - name: Cache Rust build target
+        uses: actions/cache@v4
+        with:
+          path: rust/target
+          key: ${{ runner.os }}-rust-target-${{ hashFiles('rust/Cargo.lock', 'rust/src/**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-target-
 
       - name: Build for arm64-v8a
         working-directory: rust
@@ -90,23 +96,17 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build Release APK
-        run: gradle assembleRelease --no-daemon
+        run: |
+          gradle assembleRelease \
+            --no-daemon \
+            --build-cache \
+            --configuration-cache \
+            --parallel
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
