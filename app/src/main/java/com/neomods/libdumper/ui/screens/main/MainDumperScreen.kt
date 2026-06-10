@@ -1,5 +1,6 @@
 package com.neomods.libdumper.ui.screens.main
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
