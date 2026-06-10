@@ -1,0 +1,11 @@
+# Prevent GitHub from modifying binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.so binary
+*.apk binary
+*.jar binary
+*.keystore binary

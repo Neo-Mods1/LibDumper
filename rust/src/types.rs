@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize, Deserializer};
 
-fn deserialize_u64_from_number<'de, D>(deserializer: D) -> Result<u64, D::Error>
+pub fn deserialize_u64_from_number<'de, D>(deserializer: D) -> Result<u64, D::Error>
 where
     D: Deserializer<'de>,
 {
