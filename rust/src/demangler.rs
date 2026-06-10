@@ -7,11 +7,7 @@ pub struct Demangler {
 impl Demangler {
     pub fn new() -> Self {
         Self {
-            options: DemangleOptions::default()
-                .show_return_type(true)
-                .show_template_parameters(true)
-                .show_function_parameters(true)
-                .hide_ellipsis(true),
+            options: DemangleOptions::default(),
         }
     }
 
