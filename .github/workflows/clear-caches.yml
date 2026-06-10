@@ -3,6 +3,9 @@ name: Clear All Caches
 on:
   workflow_dispatch:
 
+permissions:
+  actions: write
+
 jobs:
   clear-caches:
     runs-on: ubuntu-latest
@@ -11,37 +14,37 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const caches = await github.rest.actions.getActionsCacheList({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            });
+            let totalDeleted = 0;
+            let page = 1;
             
-            console.log(`Found ${caches.data.total_count} caches`);
-            
-            if (caches.data.total_count === 0) {
-              console.log('No caches to delete');
-              return;
-            }
-            
-            let deleted = 0;
-            for (const cache of caches.data.actions_caches) {
-              try {
-                await github.rest.actions.deleteActionsCacheById({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  cache_id: cache.id
-                });
-                deleted++;
-                console.log(`Deleted cache: ${cache.key} (id: ${cache.id})`);
-              } catch (e) {
-                console.log(`Failed to delete ${cache.key}: ${e.message}`);
+            while (true) {
+              const caches = await github.rest.actions.getActionsCacheList({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page: page
+              });
+              
+              if (caches.data.actions_caches.length === 0) break;
+              
+              console.log(`Page ${page}: found ${caches.data.actions_caches.length} caches`);
+              
+              for (const cache of caches.data.actions_caches) {
+                try {
+                  await github.rest.actions.deleteActionsCacheById({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    cache_id: cache.id
+                  });
+                  totalDeleted++;
+                  console.log(`Deleted: ${cache.key}`);
+                } catch (e) {
+                  console.log(`Failed: ${cache.key} - ${e.message}`);
+                }
               }
+              
+              if (caches.data.actions_caches.length < 100) break;
+              page++;
             }
             
-            console.log(`Deleted ${deleted}/${caches.data.total_count} caches`);
-            
-            // If there are more pages, keep going
-            if (caches.data.total_count > 100) {
-              console.log('More than 100 caches, run again to clear remaining');
-            }
+            console.log(`Total deleted: ${totalDeleted}`);
