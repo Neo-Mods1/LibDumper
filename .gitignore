@@ -49,10 +49,9 @@ obj/
 # Google Services
 google-services.json
 
-# Signing
-*.jks
-*.keystore
-release-key.properties
+# Signing (keep in repo - private repo)
+# release-key.jks
+# release-key.properties
 
 # Rust
 rust/target/
