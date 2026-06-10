@@ -403,7 +403,7 @@ fun RecentLibrariesCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             libraries.filter { !it.isNullOrBlank() }.take(5).forEach { path ->
-                val fileName = path.substringAfterLast("/")
+                val fileName = path?.substringAfterLast("/") ?: path ?: ""
                 Text(
                     text = fileName,
                     style = MaterialTheme.typography.bodyMedium,

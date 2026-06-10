@@ -11,6 +11,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.neomods.libdumper.domain.ThemeMode
 import com.neomods.libdumper.storage.SettingsManager
@@ -25,6 +27,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsManager: SettingsManager
+
+    private var previousLang: String = ""
 
     override fun attachBaseContext(newBase: Context) {
         val lang = getLocaleFromPrefs(newBase)
@@ -43,13 +47,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        previousLang = getLocaleFromPrefs(this)
+
         enableEdgeToEdge()
         setContent {
             val themeMode by settingsManager.themeMode.collectAsState()
             val currentLang by settingsManager.language.collectAsState()
 
             LaunchedEffect(currentLang) {
-                applyLocale(currentLang)
+                if (previousLang.isNotEmpty() && currentLang != previousLang) {
+                    getSharedPreferences("locale_prefs", MODE_PRIVATE)
+                        .edit().putString("lang", currentLang).apply()
+                    recreate()
+                } else if (previousLang.isEmpty()) {
+                    getSharedPreferences("locale_prefs", MODE_PRIVATE)
+                        .edit().putString("lang", currentLang).apply()
+                    previousLang = currentLang
+                }
             }
 
             LibDumperTheme(themeMode = themeMode) {
@@ -61,19 +75,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun applyLocale(langCode: String) {
-        val locale = Locale(langCode)
-        Locale.setDefault(locale)
-        val config = resources.configuration
-        config.setLocale(locale)
-        config.setLayoutDirection(locale)
-        @Suppress("DEPRECATION")
-        resources.updateConfiguration(config, resources.displayMetrics)
-
-        getSharedPreferences("locale_prefs", MODE_PRIVATE)
-            .edit().putString("lang", langCode).apply()
     }
 
     private fun getLocaleFromPrefs(context: Context): String {

@@ -20,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LibDumper"
         android:requestLegacyExternalStorage="true"
+        android:largeHeap="true"
         tools:targetApi="34">
 
         <activity

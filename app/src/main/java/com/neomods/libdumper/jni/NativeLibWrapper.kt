@@ -3,7 +3,6 @@ package com.neomods.libdumper.jni
 import com.neomods.libdumper.domain.ClassInfo
 import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.ElfInfo
-import com.neomods.libdumper.domain.MethodInfo
 import com.neomods.libdumper.domain.NamespaceInfo
 import com.neomods.libdumper.domain.Symbol
 import com.google.gson.Gson
@@ -25,6 +24,10 @@ class NativeLibWrapper {
         }
 
         private val gson = Gson()
+
+        private var lastSymbolsJson: String? = null
+        private var lastClassesJson: String? = null
+        private var lastNamespacesJson: String? = null
 
         fun isNativeAvailable(): Boolean = nativeLoaded
 
@@ -85,6 +88,9 @@ class NativeLibWrapper {
                     config.generateDumpInfo,
                     config.generateJson
                 )
+                lastSymbolsJson = json
+                lastClassesJson = null
+                lastNamespacesJson = null
                 val type = object : TypeToken<List<Symbol>>() {}.type
                 gson.fromJson(json, type)
             } catch (e: Exception) {
@@ -99,7 +105,7 @@ class NativeLibWrapper {
         ): List<ClassInfo> {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val symbolsJson = gson.toJson(symbols)
+                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
                 val json = nativeReconstructClasses(
                     symbolsJson,
                     config.generateCppReconstruction,
@@ -110,6 +116,7 @@ class NativeLibWrapper {
                     config.detectOverloadedMethods,
                     config.attemptInheritanceDetection
                 )
+                lastClassesJson = json
                 val type = object : TypeToken<List<ClassInfo>>() {}.type
                 gson.fromJson(json, type)
             } catch (e: Exception) {
@@ -125,13 +132,14 @@ class NativeLibWrapper {
         ): List<NamespaceInfo> {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val symbolsJson = gson.toJson(symbols)
-                val classesJson = gson.toJson(classes)
+                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
+                val classesJson = lastClassesJson ?: gson.toJson(classes)
                 val json = nativeDetectNamespaces(
                     symbolsJson,
                     classesJson,
                     config.detectNamespaces
                 )
+                lastNamespacesJson = json
                 val type = object : TypeToken<List<NamespaceInfo>>() {}.type
                 gson.fromJson(json, type)
             } catch (e: Exception) {
@@ -147,8 +155,8 @@ class NativeLibWrapper {
         ): String {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val classesJson = gson.toJson(classes)
-                val namespacesJson = gson.toJson(namespaces)
+                val classesJson = lastClassesJson ?: gson.toJson(classes)
+                val namespacesJson = lastNamespacesJson ?: gson.toJson(namespaces)
                 nativeGenerateDumpCpp(
                     classesJson,
                     namespacesJson,
@@ -167,7 +175,7 @@ class NativeLibWrapper {
         fun generateSymbolTable(symbols: List<Symbol>): String {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val symbolsJson = gson.toJson(symbols)
+                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
                 nativeGenerateSymbolTable(symbolsJson)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -184,9 +192,9 @@ class NativeLibWrapper {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val elfInfoJson = gson.toJson(elfInfo)
-                val symbolsJson = gson.toJson(symbols)
-                val classesJson = gson.toJson(classes)
-                val namespacesJson = gson.toJson(namespaces)
+                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
+                val classesJson = lastClassesJson ?: gson.toJson(classes)
+                val namespacesJson = lastNamespacesJson ?: gson.toJson(namespaces)
                 nativeGenerateJsonExport(
                     elfInfoJson,
                     symbolsJson,
