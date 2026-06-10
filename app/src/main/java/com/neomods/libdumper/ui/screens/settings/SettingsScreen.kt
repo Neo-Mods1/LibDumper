@@ -2,8 +2,6 @@ package com.neomods.libdumper.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,17 +14,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -37,7 +37,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.neomods.libdumper.domain.ThemeMode
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,8 +53,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     val currentTheme by viewModel.themeMode.collectAsState()
     val currentDumpLocation by viewModel.dumpLocation.collectAsState()
 
@@ -67,15 +63,12 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Settings",
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(text = "Settings", fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -92,32 +85,24 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            item { Spacer(modifier = Modifier.height(4.dp)) }
 
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Appearance",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
+                        Spacer(modifier = Modifier.height(8.dp))
                         SettingsRow(
                             title = "Theme Mode",
                             value = when (currentTheme) {
@@ -134,22 +119,16 @@ fun SettingsScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Storage",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
+                        Spacer(modifier = Modifier.height(8.dp))
                         SettingsRow(
                             title = "Dump Location",
                             value = currentDumpLocation,
@@ -162,60 +141,36 @@ fun SettingsScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Contact",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        ContactRow(
-                            title = "Telegram",
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/NeoModsChannel"))
-                                context.startActivity(intent)
-                            }
-                        )
-
-                        ContactRow(
-                            title = "Discussion",
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+RYSsITD6K-U4NzI0"))
-                                context.startActivity(intent)
-                            }
-                        )
-
-                        ContactRow(
-                            title = "GitHub",
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Neo-Mods1/Neo-Mods1"))
-                                context.startActivity(intent)
-                            }
-                        )
-
-                        ContactRow(
-                            title = "YouTube",
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/@neo-modsyt?si=aHEpvVllsHPxnGck"))
-                                context.startActivity(intent)
-                            }
-                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        ContactRow(title = "Telegram") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/NeoModsChannel")))
+                        }
+                        HorizontalDivider()
+                        ContactRow(title = "Discussion") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/+RYSsITD6K-U4NzI0")))
+                        }
+                        HorizontalDivider()
+                        ContactRow(title = "GitHub") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Neo-Mods1/Neo-Mods1")))
+                        }
+                        HorizontalDivider()
+                        ContactRow(title = "YouTube") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/@neo-modsyt?si=aHEpvVllsHPxnGck")))
+                        }
                     }
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
         }
     }
 
@@ -252,26 +207,22 @@ fun SettingsRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 12.dp),
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Text(text = title, style = MaterialTheme.typography.bodyMedium)
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = "Expand"
+                contentDescription = "Expand",
+                modifier = Modifier.size(18.dp)
             )
         }
     }
@@ -286,18 +237,16 @@ fun ContactRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 12.dp),
+            .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        Text(text = title, style = MaterialTheme.typography.bodyMedium)
         Icon(
             imageVector = Icons.Default.OpenInNew,
             contentDescription = "Open",
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp)
         )
     }
 }
@@ -310,32 +259,16 @@ fun ThemeDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(text = "Theme Mode")
-        },
+        title = { Text(text = "Theme Mode", style = MaterialTheme.typography.titleMedium) },
         text = {
             Column {
-                ThemeOption(
-                    text = "System",
-                    selected = currentTheme == ThemeMode.SYSTEM,
-                    onClick = { onThemeSelected(ThemeMode.SYSTEM) }
-                )
-                ThemeOption(
-                    text = "Light",
-                    selected = currentTheme == ThemeMode.LIGHT,
-                    onClick = { onThemeSelected(ThemeMode.LIGHT) }
-                )
-                ThemeOption(
-                    text = "Dark",
-                    selected = currentTheme == ThemeMode.DARK,
-                    onClick = { onThemeSelected(ThemeMode.DARK) }
-                )
+                ThemeOption(text = "System", selected = currentTheme == ThemeMode.SYSTEM) { onThemeSelected(ThemeMode.SYSTEM) }
+                ThemeOption(text = "Light", selected = currentTheme == ThemeMode.LIGHT) { onThemeSelected(ThemeMode.LIGHT) }
+                ThemeOption(text = "Dark", selected = currentTheme == ThemeMode.DARK) { onThemeSelected(ThemeMode.DARK) }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = "Cancel")
-            }
+            TextButton(onClick = onDismiss) { Text(text = "Cancel") }
         }
     )
 }
@@ -350,18 +283,12 @@ fun ThemeOption(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 12.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        androidx.compose.material3.RadioButton(
-            selected = selected,
-            onClick = onClick
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge
-        )
+        RadioButton(selected = selected, onClick = onClick)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = text, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -375,28 +302,21 @@ fun DumpLocationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Text(text = "Dump Location")
-        },
+        title = { Text(text = "Dump Location", style = MaterialTheme.typography.titleMedium) },
         text = {
-            Column {
-                androidx.compose.material3.OutlinedTextField(
-                    value = location,
-                    onValueChange = { location = it },
-                    label = { Text("Storage Path") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            OutlinedTextField(
+                value = location,
+                onValueChange = { location = it },
+                label = { Text("Storage Path") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
         },
         confirmButton = {
-            TextButton(onClick = { onLocationSelected(location) }) {
-                Text(text = "Save")
-            }
+            TextButton(onClick = { onLocationSelected(location) }) { Text(text = "Save") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = "Cancel")
-            }
+            TextButton(onClick = onDismiss) { Text(text = "Cancel") }
         }
     )
 }

@@ -1,7 +1,5 @@
 package com.neomods.libdumper.ui.screens.about
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,14 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,11 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.neomods.libdumper.R
 import com.neomods.libdumper.jni.NativeLibWrapper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,7 +41,6 @@ import com.neomods.libdumper.jni.NativeLibWrapper
 fun AboutScreen(
     onNavigateBack: () -> Unit
 ) {
-    val context = LocalContext.current
     var rustVersion by remember { mutableStateOf("1.0.0") }
 
     LaunchedEffect(Unit) {
@@ -56,16 +50,11 @@ fun AboutScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "About",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
+                title = { Text(text = "About", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -82,48 +71,38 @@ fun AboutScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            item { Spacer(modifier = Modifier.height(4.dp)) }
 
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
                             contentDescription = "App Icon",
-                            modifier = Modifier.size(80.dp),
+                            modifier = Modifier.size(48.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Lib Dumper",
-                            style = MaterialTheme.typography.headlineMedium,
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "ELF Analysis & Symbol Dumper",
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -133,28 +112,23 @@ fun AboutScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Application Info",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        AboutRow(label = "Application Name", value = "Lib Dumper")
+                        Spacer(modifier = Modifier.height(6.dp))
+                        AboutRow(label = "Name", value = "Lib Dumper")
+                        HorizontalDivider()
                         AboutRow(label = "Version", value = "1.0.0")
-                        AboutRow(label = "Package Name", value = "com.neomods.libdumper")
-                        AboutRow(label = "Build Number", value = "1")
-                        AboutRow(label = "Developer", value = "Lib Dumper Developer")
-                        AboutRow(label = "Rust Backend Version", value = rustVersion)
+                        HorizontalDivider()
+                        AboutRow(label = "Package", value = "com.neomods.libdumper")
+                        HorizontalDivider()
+                        AboutRow(label = "Rust Backend", value = rustVersion)
                     }
                 }
             }
@@ -162,50 +136,30 @@ fun AboutScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
                         Text(
                             text = "Technologies",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
+                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Frontend:",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold
+                            text = "Frontend: Kotlin, Jetpack Compose, Material 3, Hilt, DataStore",
+                            style = MaterialTheme.typography.bodySmall
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Kotlin, Jetpack Compose, Material 3, MVVM, StateFlow, Coroutines, Hilt, DataStore",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "Backend:",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Rust, JNI, goblin, cpp_demangle, anyhow, serde, rayon",
-                            style = MaterialTheme.typography.bodyMedium
+                            text = "Backend: Rust, JNI, goblin, cpp_demangle, serde",
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
         }
     }
 }
@@ -216,19 +170,17 @@ fun AboutRow(
     value: String
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
     }

@@ -9,7 +9,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,41 +19,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,16 +55,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.neomods.libdumper.domain.ClassInfo
 import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.DumpProgress
 import com.neomods.libdumper.domain.ElfInfo
-import com.neomods.libdumper.domain.NamespaceInfo
-import com.neomods.libdumper.domain.Symbol
 import com.neomods.libdumper.utils.FileUtils
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun MainDumperScreen(
     onNavigateToSettings: () -> Unit,
@@ -80,13 +68,10 @@ fun MainDumperScreen(
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-
     val uiState by viewModel.uiState.collectAsState()
     val dumpConfig by viewModel.dumpConfig.collectAsState()
     val recentLibraries by viewModel.recentLibraries.collectAsState()
 
-    var showBottomSheet by remember { mutableStateOf(false) }
     var showProgressDialog by remember { mutableStateOf(false) }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -135,12 +120,10 @@ fun MainDumperScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            item { Spacer(modifier = Modifier.height(4.dp)) }
 
             item {
                 SelectedLibraryCard(
@@ -163,29 +146,68 @@ fun MainDumperScreen(
             }
 
             item {
-                SymbolSourcesCard(
+                ExpandableConfigCard(
+                    title = "Symbol Sources",
                     config = dumpConfig,
+                    checkboxes = listOf(
+                        Triple("Extract .symtab", dumpConfig.extractSymtab) { v -> dumpConfig.copy(extractSymtab = v) },
+                        Triple("Extract .dynsym", dumpConfig.extractDynsym) { v -> dumpConfig.copy(extractDynsym = v) },
+                        Triple("Exported symbols", dumpConfig.extractExported) { v -> dumpConfig.copy(extractExported = v) },
+                        Triple("Imported symbols", dumpConfig.extractImported) { v -> dumpConfig.copy(extractImported = v) },
+                        Triple("Raw symbol names", dumpConfig.dumpRawNames) { v -> dumpConfig.copy(dumpRawNames = v) },
+                    ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
             }
 
             item {
-                ReconstructionOptionsCard(
+                ExpandableConfigCard(
+                    title = "Reconstruction",
                     config = dumpConfig,
+                    checkboxes = listOf(
+                        Triple("C++ reconstruction", dumpConfig.generateCppReconstruction) { v -> dumpConfig.copy(generateCppReconstruction = v) },
+                        Triple("Group methods into classes", dumpConfig.groupMethodsIntoClasses) { v -> dumpConfig.copy(groupMethodsIntoClasses = v) },
+                        Triple("Group static methods", dumpConfig.groupStaticMethods) { v -> dumpConfig.copy(groupStaticMethods = v) },
+                        Triple("Detect constructors", dumpConfig.detectConstructors) { v -> dumpConfig.copy(detectConstructors = v) },
+                        Triple("Detect destructors", dumpConfig.detectDestructors) { v -> dumpConfig.copy(detectDestructors = v) },
+                        Triple("Detect overloaded methods", dumpConfig.detectOverloadedMethods) { v -> dumpConfig.copy(detectOverloadedMethods = v) },
+                        Triple("Detect namespaces", dumpConfig.detectNamespaces) { v -> dumpConfig.copy(detectNamespaces = v) },
+                        Triple("Generate comments", dumpConfig.generateComments) { v -> dumpConfig.copy(generateComments = v) },
+                        Triple("Method signatures", dumpConfig.includeMethodSignatures) { v -> dumpConfig.copy(includeMethodSignatures = v) },
+                        Triple("Return types", dumpConfig.includeReturnTypes) { v -> dumpConfig.copy(includeReturnTypes = v) },
+                        Triple("Parameter types", dumpConfig.includeParameterTypes) { v -> dumpConfig.copy(includeParameterTypes = v) },
+                        Triple("Inheritance detection", dumpConfig.attemptInheritanceDetection) { v -> dumpConfig.copy(attemptInheritanceDetection = v) },
+                    ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
             }
 
             item {
-                AddressInfoCard(
+                ExpandableConfigCard(
+                    title = "Address Info",
                     config = dumpConfig,
+                    checkboxes = listOf(
+                        Triple("Virtual addresses", dumpConfig.includeVirtualAddresses) { v -> dumpConfig.copy(includeVirtualAddresses = v) },
+                        Triple("RVA", dumpConfig.includeRva) { v -> dumpConfig.copy(includeRva = v) },
+                        Triple("File offsets", dumpConfig.includeFileOffsets) { v -> dumpConfig.copy(includeFileOffsets = v) },
+                        Triple("Symbol sizes", dumpConfig.includeSymbolSizes) { v -> dumpConfig.copy(includeSymbolSizes = v) },
+                        Triple("Section names", dumpConfig.includeSectionNames) { v -> dumpConfig.copy(includeSectionNames = v) },
+                    ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
             }
 
             item {
-                OutputFilesCard(
+                ExpandableConfigCard(
+                    title = "Output Files",
                     config = dumpConfig,
+                    checkboxes = listOf(
+                        Triple("Dump.cpp", dumpConfig.generateDumpCpp) { v -> dumpConfig.copy(generateDumpCpp = v) },
+                        Triple("SymbolTable.txt", dumpConfig.generateSymbolTable) { v -> dumpConfig.copy(generateSymbolTable = v) },
+                        Triple("Credits.txt", dumpConfig.generateCredits) { v -> dumpConfig.copy(generateCredits = v) },
+                        Triple("DumpInfo.txt", dumpConfig.generateDumpInfo) { v -> dumpConfig.copy(generateDumpInfo = v) },
+                        Triple("JSON export", dumpConfig.generateJson) { v -> dumpConfig.copy(generateJson = v) },
+                    ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
             }
@@ -198,19 +220,17 @@ fun MainDumperScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(48.dp),
                     enabled = uiState.elfInfo != null && !uiState.isDumping
                 ) {
                     Text(
                         text = "Generate Dump",
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
         }
     }
 
@@ -254,80 +274,94 @@ fun SelectedLibraryCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "Selected Library",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Selected Library",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                if (elfInfo != null) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "Loaded",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             if (elfInfo != null) {
-                LibraryInfoRow(label = "Name", value = elfInfo.fileName)
-                LibraryInfoRow(label = "Path", value = elfInfo.filePath, maxLines = 1)
-                LibraryInfoRow(label = "Architecture", value = elfInfo.architecture)
-                LibraryInfoRow(label = "File Size", value = FileUtils.formatFileSize(elfInfo.fileSize))
-                LibraryInfoRow(
-                    label = "Status",
-                    value = if (elfInfo.isValid) "Valid" else "Invalid",
+                CompactInfoRow("Name", elfInfo.fileName)
+                CompactInfoRow("Arch", elfInfo.architecture)
+                CompactInfoRow("Size", FileUtils.formatFileSize(elfInfo.fileSize))
+                CompactInfoRow(
+                    "Status",
+                    if (elfInfo.isValid) "Valid ELF" else "Invalid",
                     valueColor = if (elfInfo.isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
             } else {
                 Text(
                     text = "No library selected",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = onSelectLibrary,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().height(40.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             ) {
                 Icon(
                     imageVector = Icons.Default.FolderOpen,
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Select Library")
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = "Select Library", style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
 }
 
 @Composable
-fun LibraryInfoRow(
+fun CompactInfoRow(
     label: String,
     value: String,
-    maxLines: Int = 2,
     valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = valueColor,
-            maxLines = maxLines,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f, fill = false)
+            modifier = Modifier.weight(1f, fill = false).padding(start = 8.dp)
         )
     }
 }
@@ -342,28 +376,26 @@ fun RecentLibrariesCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = "Recent Libraries",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             libraries.filter { !it.isNullOrBlank() }.take(5).forEach { path ->
                 val fileName = path.substringAfterLast("/")
                 Text(
                     text = fileName,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onLibrarySelected(path) }
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -372,8 +404,10 @@ fun RecentLibrariesCard(
 }
 
 @Composable
-fun SymbolSourcesCard(
+fun ExpandableConfigCard(
+    title: String,
     config: DumpConfig,
+    checkboxes: List<Triple<String, Boolean, (Boolean) -> DumpConfig>>,
     onConfigChange: (DumpConfig) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -383,13 +417,13 @@ fun SymbolSourcesCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = !expanded }
-                .padding(16.dp)
+                .padding(12.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -397,13 +431,20 @@ fun SymbolSourcesCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Symbol Sources",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
+                )
+                val enabledCount = checkboxes.count { it.second }
+                Text(
+                    text = "$enabledCount/${checkboxes.size}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
@@ -413,32 +454,14 @@ fun SymbolSourcesCard(
                 exit = shrinkVertically()
             ) {
                 Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CheckboxRow(
-                        label = "Extract .symtab",
-                        checked = config.extractSymtab,
-                        onCheckedChange = { onConfigChange(config.copy(extractSymtab = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Extract .dynsym",
-                        checked = config.extractDynsym,
-                        onCheckedChange = { onConfigChange(config.copy(extractDynsym = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Extract exported symbols",
-                        checked = config.extractExported,
-                        onCheckedChange = { onConfigChange(config.copy(extractExported = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Extract imported symbols",
-                        checked = config.extractImported,
-                        onCheckedChange = { onConfigChange(config.copy(extractImported = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Dump raw symbol names",
-                        checked = config.dumpRawNames,
-                        onCheckedChange = { onConfigChange(config.copy(dumpRawNames = it)) }
-                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
+                    checkboxes.forEach { (label, checked, updater) ->
+                        CompactCheckboxRow(
+                            label = label,
+                            checked = checked,
+                            onCheckedChange = { onConfigChange(updater(it)) }
+                        )
+                    }
                 }
             }
         }
@@ -446,264 +469,7 @@ fun SymbolSourcesCard(
 }
 
 @Composable
-fun ReconstructionOptionsCard(
-    config: DumpConfig,
-    onConfigChange: (DumpConfig) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Reconstruction Options",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
-                )
-            }
-
-            AnimatedVisibility(
-                visible = expanded,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CheckboxRow(
-                        label = "Generate C++ reconstruction",
-                        checked = config.generateCppReconstruction,
-                        onCheckedChange = { onConfigChange(config.copy(generateCppReconstruction = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Group methods into classes",
-                        checked = config.groupMethodsIntoClasses,
-                        onCheckedChange = { onConfigChange(config.copy(groupMethodsIntoClasses = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Group static methods",
-                        checked = config.groupStaticMethods,
-                        onCheckedChange = { onConfigChange(config.copy(groupStaticMethods = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Detect constructors",
-                        checked = config.detectConstructors,
-                        onCheckedChange = { onConfigChange(config.copy(detectConstructors = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Detect destructors",
-                        checked = config.detectDestructors,
-                        onCheckedChange = { onConfigChange(config.copy(detectDestructors = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Detect overloaded methods",
-                        checked = config.detectOverloadedMethods,
-                        onCheckedChange = { onConfigChange(config.copy(detectOverloadedMethods = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Detect namespaces",
-                        checked = config.detectNamespaces,
-                        onCheckedChange = { onConfigChange(config.copy(detectNamespaces = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Generate comments",
-                        checked = config.generateComments,
-                        onCheckedChange = { onConfigChange(config.copy(generateComments = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include method signatures",
-                        checked = config.includeMethodSignatures,
-                        onCheckedChange = { onConfigChange(config.copy(includeMethodSignatures = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include return types",
-                        checked = config.includeReturnTypes,
-                        onCheckedChange = { onConfigChange(config.copy(includeReturnTypes = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include parameter types",
-                        checked = config.includeParameterTypes,
-                        onCheckedChange = { onConfigChange(config.copy(includeParameterTypes = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Attempt inheritance detection",
-                        checked = config.attemptInheritanceDetection,
-                        onCheckedChange = { onConfigChange(config.copy(attemptInheritanceDetection = it)) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AddressInfoCard(
-    config: DumpConfig,
-    onConfigChange: (DumpConfig) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Address Information",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
-                )
-            }
-
-            AnimatedVisibility(
-                visible = expanded,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CheckboxRow(
-                        label = "Include Virtual Addresses",
-                        checked = config.includeVirtualAddresses,
-                        onCheckedChange = { onConfigChange(config.copy(includeVirtualAddresses = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include RVA",
-                        checked = config.includeRva,
-                        onCheckedChange = { onConfigChange(config.copy(includeRva = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include File Offsets",
-                        checked = config.includeFileOffsets,
-                        onCheckedChange = { onConfigChange(config.copy(includeFileOffsets = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include Symbol Sizes",
-                        checked = config.includeSymbolSizes,
-                        onCheckedChange = { onConfigChange(config.copy(includeSymbolSizes = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Include Section Names",
-                        checked = config.includeSectionNames,
-                        onCheckedChange = { onConfigChange(config.copy(includeSectionNames = it)) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun OutputFilesCard(
-    config: DumpConfig,
-    onConfigChange: (DumpConfig) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Output Files",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
-                )
-            }
-
-            AnimatedVisibility(
-                visible = expanded,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Column {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CheckboxRow(
-                        label = "Generate Dump.cpp",
-                        checked = config.generateDumpCpp,
-                        onCheckedChange = { onConfigChange(config.copy(generateDumpCpp = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Generate SymbolTable.txt",
-                        checked = config.generateSymbolTable,
-                        onCheckedChange = { onConfigChange(config.copy(generateSymbolTable = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Generate Credits.txt",
-                        checked = config.generateCredits,
-                        onCheckedChange = { onConfigChange(config.copy(generateCredits = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Generate DumpInfo.txt",
-                        checked = config.generateDumpInfo,
-                        onCheckedChange = { onConfigChange(config.copy(generateDumpInfo = it)) }
-                    )
-                    CheckboxRow(
-                        label = "Generate JSON export",
-                        checked = config.generateJson,
-                        onCheckedChange = { onConfigChange(config.copy(generateJson = it)) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CheckboxRow(
+fun CompactCheckboxRow(
     label: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -712,17 +478,18 @@ fun CheckboxRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!checked) }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         androidx.compose.material3.Checkbox(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.size(20.dp)
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }
@@ -735,29 +502,29 @@ fun DumpProgressDialog(
     AlertDialog(
         onDismissRequest = { },
         title = {
-            Text(text = "Dumping Library")
+            Text(text = "Dumping Library", style = MaterialTheme.typography.titleMedium)
         },
         text = {
             Column {
                 Text(
                     text = progress?.stage ?: "Starting...",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = progress?.message ?: "",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 LinearProgressIndicator(
                     progress = { progress?.progress ?: 0f },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${((progress?.progress ?: 0f) * 100).toInt()}%",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -778,16 +545,16 @@ fun DumpCompleteDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "Dump Complete")
+            Text(text = "Dump Complete", style = MaterialTheme.typography.titleMedium)
         },
         text = {
-            Column {
-                Text(text = "Library: ${result.elfInfo.fileName}")
-                Text(text = "Total Symbols: ${result.totalSymbols}")
-                Text(text = "Total Classes: ${result.totalClasses}")
-                Text(text = "Total Methods: ${result.totalMethods}")
-                Text(text = "Total Namespaces: ${result.totalNamespaces}")
-                Text(text = "Duration: ${result.dumpDurationMs}ms")
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Library: ${result.elfInfo.fileName}", style = MaterialTheme.typography.bodySmall)
+                Text("Symbols: ${result.totalSymbols}", style = MaterialTheme.typography.bodySmall)
+                Text("Classes: ${result.totalClasses}", style = MaterialTheme.typography.bodySmall)
+                Text("Methods: ${result.totalMethods}", style = MaterialTheme.typography.bodySmall)
+                Text("Namespaces: ${result.totalNamespaces}", style = MaterialTheme.typography.bodySmall)
+                Text("Duration: ${result.dumpDurationMs}ms", style = MaterialTheme.typography.bodySmall)
             }
         },
         confirmButton = {
@@ -806,10 +573,10 @@ fun ErrorDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "Error")
+            Text(text = "Error", style = MaterialTheme.typography.titleMedium)
         },
         text = {
-            Text(text = message)
+            Text(text = message, style = MaterialTheme.typography.bodySmall)
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
