@@ -47,6 +47,11 @@ class SettingsManager @Inject constructor(
         private val DETECT_OVERLOADED = booleanPreferencesKey("detect_overloaded")
         private val DETECT_NAMESPACES = booleanPreferencesKey("detect_namespaces")
         private val GENERATE_COMMENTS = booleanPreferencesKey("generate_comments")
+        private val INCLUDE_METHOD_SIGNATURES = booleanPreferencesKey("include_method_signatures")
+        private val INCLUDE_RETURN_TYPES = booleanPreferencesKey("include_return_types")
+        private val INCLUDE_PARAMETER_TYPES = booleanPreferencesKey("include_parameter_types")
+        private val ATTEMPT_INHERITANCE = booleanPreferencesKey("attempt_inheritance")
+        private val INCLUDE_VIRTUAL_ADDRESSES = booleanPreferencesKey("include_virtual_addresses")
         private val INCLUDE_RVA = booleanPreferencesKey("include_rva")
         private val INCLUDE_FILE_OFFSETS = booleanPreferencesKey("include_file_offsets")
         private val INCLUDE_SYMBOL_SIZES = booleanPreferencesKey("include_symbol_sizes")
@@ -103,6 +108,11 @@ class SettingsManager @Inject constructor(
             detectOverloadedMethods = preferences[DETECT_OVERLOADED] ?: true,
             detectNamespaces = preferences[DETECT_NAMESPACES] ?: true,
             generateComments = preferences[GENERATE_COMMENTS] ?: true,
+            includeMethodSignatures = preferences[INCLUDE_METHOD_SIGNATURES] ?: true,
+            includeReturnTypes = preferences[INCLUDE_RETURN_TYPES] ?: true,
+            includeParameterTypes = preferences[INCLUDE_PARAMETER_TYPES] ?: true,
+            attemptInheritanceDetection = preferences[ATTEMPT_INHERITANCE] ?: true,
+            includeVirtualAddresses = preferences[INCLUDE_VIRTUAL_ADDRESSES] ?: true,
             includeRva = preferences[INCLUDE_RVA] ?: true,
             includeFileOffsets = preferences[INCLUDE_FILE_OFFSETS] ?: true,
             includeSymbolSizes = preferences[INCLUDE_SYMBOL_SIZES] ?: true,
@@ -161,6 +171,11 @@ class SettingsManager @Inject constructor(
             preferences[DETECT_OVERLOADED] = config.detectOverloadedMethods
             preferences[DETECT_NAMESPACES] = config.detectNamespaces
             preferences[GENERATE_COMMENTS] = config.generateComments
+            preferences[INCLUDE_METHOD_SIGNATURES] = config.includeMethodSignatures
+            preferences[INCLUDE_RETURN_TYPES] = config.includeReturnTypes
+            preferences[INCLUDE_PARAMETER_TYPES] = config.includeParameterTypes
+            preferences[ATTEMPT_INHERITANCE] = config.attemptInheritanceDetection
+            preferences[INCLUDE_VIRTUAL_ADDRESSES] = config.includeVirtualAddresses
             preferences[INCLUDE_RVA] = config.includeRva
             preferences[INCLUDE_FILE_OFFSETS] = config.includeFileOffsets
             preferences[INCLUDE_SYMBOL_SIZES] = config.includeSymbolSizes

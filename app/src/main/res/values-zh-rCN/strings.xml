@@ -87,4 +87,7 @@
     <string name="dump_info_file">DumpInfo.txt</string>
     <string name="json_export">JSON 导出</string>
     <string name="storage_access">存储访问</string>
+    <string name="version">版本</string>
+    <string name="package_label">包名</string>
+    <string name="rust_backend">Rust 后端</string>
 </resources>

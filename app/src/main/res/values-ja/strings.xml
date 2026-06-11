@@ -87,4 +87,7 @@
     <string name="dump_info_file">DumpInfo.txt</string>
     <string name="json_export">JSONエクスポート</string>
     <string name="storage_access">ストレージアクセス</string>
+    <string name="version">バージョン</string>
+    <string name="package_label">パッケージ</string>
+    <string name="rust_backend">Rust バックエンド</string>
 </resources>

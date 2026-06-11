@@ -87,4 +87,7 @@
     <string name="dump_info_file">DumpInfo.txt</string>
     <string name="json_export">Ekspor JSON</string>
     <string name="storage_access">Akses Penyimpanan</string>
+    <string name="version">Versi</string>
+    <string name="package_label">Paket</string>
+    <string name="rust_backend">Backend Rust</string>
 </resources>

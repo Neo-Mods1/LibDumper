@@ -33,8 +33,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.neomods.libdumper.R
 import com.neomods.libdumper.jni.NativeLibWrapper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +55,7 @@ fun AboutScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "About",
+                        text = stringResource(R.string.about),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -62,7 +64,7 @@ fun AboutScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -97,20 +99,20 @@ fun AboutScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = "App Icon",
+                            contentDescription = stringResource(R.string.app_name),
                             modifier = Modifier.size(56.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "Lib Dumper",
+                            text = stringResource(R.string.main_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "ELF Analysis & Symbol Dumper",
+                            text = stringResource(R.string.splash_subtitle),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -127,18 +129,18 @@ fun AboutScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Application Info",
+                            text = stringResource(R.string.application_info),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        AboutRow(label = "Name", value = "Lib Dumper")
+                        AboutRow(label = stringResource(R.string.name_label), value = stringResource(R.string.main_title))
                         HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
-                        AboutRow(label = "Version", value = "1.0.0")
+                        AboutRow(label = stringResource(R.string.version), value = "1.0.0")
                         HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
-                        AboutRow(label = "Package", value = "com.neomods.libdumper")
+                        AboutRow(label = stringResource(R.string.package_label), value = "com.neomods.libdumper")
                         HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp))
-                        AboutRow(label = "Rust Backend", value = rustVersion)
+                        AboutRow(label = stringResource(R.string.rust_backend), value = rustVersion)
                     }
                 }
             }
@@ -152,18 +154,18 @@ fun AboutScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Technologies",
+                            text = stringResource(R.string.technologies),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Frontend: Kotlin, Jetpack Compose, Material 3, Hilt, DataStore",
+                            text = stringResource(R.string.frontend_tech),
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Backend: Rust, JNI, goblin, cpp_demangle, serde",
+                            text = stringResource(R.string.backend_tech),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }

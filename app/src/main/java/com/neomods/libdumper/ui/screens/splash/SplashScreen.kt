@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.neomods.libdumper.R
@@ -58,14 +59,14 @@ fun SplashScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "Lib Dumper Logo",
+                contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.size(140.dp)
             )
 
             Spacer(modifier = Modifier.height(28.dp))
 
             Text(
-                text = "Lib Dumper",
+                text = stringResource(R.string.main_title),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -74,7 +75,7 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "ELF Analysis & Symbol Dumper",
+                text = stringResource(R.string.splash_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
