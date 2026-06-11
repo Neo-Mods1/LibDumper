@@ -53,7 +53,7 @@ impl SymbolExtractor {
     fn extract_from_section(
         &self,
         elf: &Elf,
-        data: &[u8],
+        _data: &[u8],
         section_name: &str,
         is_symtab: bool,
         config: &DumpConfig,

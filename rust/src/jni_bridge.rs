@@ -1,6 +1,6 @@
 use jni::JNIEnv;
 use jni::objects::{JClass, JString};
-use jni::sys::jboolean;
+use jni::sys::{jboolean, jstring};
 use std::sync::Mutex;
 
 use crate::elf_parser::ElfParser;
