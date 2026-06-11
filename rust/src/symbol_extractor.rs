@@ -35,12 +35,12 @@ impl SymbolExtractor {
         }
         
         if config.extract_exported {
-            let exported = self.extract_exported(elf, data)?;
+            let exported = self.extract_exported(elf, data, config)?;
             symbols.extend(exported);
         }
         
         if config.extract_imported {
-            let imported = self.extract_imported(elf, data)?;
+            let imported = self.extract_imported(elf, data, config)?;
             symbols.extend(imported);
         }
         
@@ -84,7 +84,7 @@ impl SymbolExtractor {
             let file_offset = self.calculate_file_offset(elf, sym, section_name);
             
             let symbol = Symbol {
-                name: name.clone(),
+                name: if config.dump_raw_names { name.clone() } else { self.demangler.demangle(&name) },
                 demangled_name: self.demangler.demangle(&name),
                 address: sym.st_value,
                 rva: if sym.st_value >= self.get_image_base(elf) {
@@ -110,7 +110,7 @@ impl SymbolExtractor {
         Ok(symbols)
     }
 
-    fn extract_exported(&self, elf: &Elf, _data: &[u8]) -> Result<Vec<Symbol>> {
+    fn extract_exported(&self, elf: &Elf, _data: &[u8], config: &DumpConfig) -> Result<Vec<Symbol>> {
         let mut symbols = Vec::new();
         
         for sym in elf.dynsyms.iter() {
@@ -126,7 +126,7 @@ impl SymbolExtractor {
                     
                     if !name.is_empty() {
                         let symbol = Symbol {
-                            name: name.clone(),
+                            name: if config.dump_raw_names { name.clone() } else { self.demangler.demangle(&name) },
                             demangled_name: self.demangler.demangle(&name),
                             address: sym.st_value,
                             rva: sym.st_value,
@@ -150,7 +150,7 @@ impl SymbolExtractor {
         Ok(symbols)
     }
 
-    fn extract_imported(&self, elf: &Elf, _data: &[u8]) -> Result<Vec<Symbol>> {
+    fn extract_imported(&self, elf: &Elf, _data: &[u8], config: &DumpConfig) -> Result<Vec<Symbol>> {
         let mut symbols = Vec::new();
         
         for sym in elf.dynsyms.iter() {
@@ -165,7 +165,7 @@ impl SymbolExtractor {
                 
                 if !name.is_empty() {
                     let symbol = Symbol {
-                        name: name.clone(),
+                        name: if config.dump_raw_names { name.clone() } else { self.demangler.demangle(&name) },
                         demangled_name: self.demangler.demangle(&name),
                         address: 0,
                         rva: 0,

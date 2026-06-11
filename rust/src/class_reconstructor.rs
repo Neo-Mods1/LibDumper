@@ -21,6 +21,10 @@ impl ClassReconstructor {
         symbols: &[Symbol],
         config: &DumpConfig,
     ) -> Result<Vec<ClassInfo>> {
+        if !config.group_methods_into_classes {
+            return Ok(Vec::new());
+        }
+
         let mut class_map: HashMap<String, Vec<Symbol>> = HashMap::new();
         
         let valid_symbols: Vec<&Symbol> = symbols.iter()
@@ -274,7 +278,7 @@ impl ClassReconstructor {
         for constructor in &class.constructors {
             output.push_str(&format!("    {}();\n", class.name));
             if config.generate_comments {
-                output.push_str(&self.generate_method_comment(constructor));
+                output.push_str(&self.generate_method_comment(constructor, config));
             }
             output.push('\n');
         }
@@ -282,23 +286,33 @@ impl ClassReconstructor {
         for destructor in &class.destructors {
             output.push_str(&format!("    ~{}();\n", class.name));
             if config.generate_comments {
-                output.push_str(&self.generate_method_comment(destructor));
+                output.push_str(&self.generate_method_comment(destructor, config));
             }
             output.push('\n');
         }
         
         for method in &class.static_methods {
-            output.push_str(&format!("    {};\n", method.demangled_name));
+            let display_name = if config.include_method_signatures {
+                method.demangled_name.clone()
+            } else {
+                method.name.clone()
+            };
+            output.push_str(&format!("    {};\n", display_name));
             if config.generate_comments {
-                output.push_str(&self.generate_method_comment(method));
+                output.push_str(&self.generate_method_comment(method, config));
             }
             output.push('\n');
         }
         
         for method in &class.methods {
-            output.push_str(&format!("    {};\n", method.demangled_name));
+            let display_name = if config.include_method_signatures {
+                method.demangled_name.clone()
+            } else {
+                method.name.clone()
+            };
+            output.push_str(&format!("    {};\n", display_name));
             if config.generate_comments {
-                output.push_str(&self.generate_method_comment(method));
+                output.push_str(&self.generate_method_comment(method, config));
             }
             output.push('\n');
         }
@@ -308,27 +322,36 @@ impl ClassReconstructor {
         output
     }
 
-    fn generate_method_comment(&self, method: &MethodInfo) -> String {
+    fn generate_method_comment(&self, method: &MethodInfo, config: &DumpConfig) -> String {
         let mut comment = String::from("    //");
+        let mut has_content = false;
         
-        if method.rva != 0 {
+        if config.include_rva && method.rva != 0 {
             comment.push_str(&format!(" RVA: 0x{:X}", method.rva));
+            has_content = true;
         }
         
-        if method.address != 0 {
-            comment.push_str(&format!(" | VA: 0x{:X}", method.address));
+        if config.include_virtual_addresses && method.address != 0 {
+            if has_content { comment.push_str(" |"); }
+            comment.push_str(&format!(" VA: 0x{:X}", method.address));
+            has_content = true;
         }
         
-        if method.file_offset != 0 {
-            comment.push_str(&format!(" | Offset: 0x{:X}", method.file_offset));
+        if config.include_file_offsets && method.file_offset != 0 {
+            if has_content { comment.push_str(" |"); }
+            comment.push_str(&format!(" Offset: 0x{:X}", method.file_offset));
+            has_content = true;
         }
         
-        if method.size != 0 {
-            comment.push_str(&format!(" | Size: 0x{:X}", method.size));
+        if config.include_symbol_sizes && method.size != 0 {
+            if has_content { comment.push_str(" |"); }
+            comment.push_str(&format!(" Size: 0x{:X}", method.size));
+            has_content = true;
         }
         
-        if !method.section.is_empty() && method.section != "UNKNOWN" {
-            comment.push_str(&format!(" | Section: {}", method.section));
+        if config.include_section_names && !method.section.is_empty() && method.section != "UNKNOWN" {
+            if has_content { comment.push_str(" |"); }
+            comment.push_str(&format!(" Section: {}", method.section));
         }
         
         comment.push('\n');

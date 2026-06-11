@@ -161,6 +161,8 @@ class NativeLibWrapper {
                     classesJson,
                     namespacesJson,
                     config.generateComments,
+                    config.includeMethodSignatures,
+                    config.includeVirtualAddresses,
                     config.includeRva,
                     config.includeFileOffsets,
                     config.includeSymbolSizes,
@@ -173,11 +175,18 @@ class NativeLibWrapper {
             }
         }
 
-        fun generateSymbolTable(symbols: List<Symbol>): String {
+        fun generateSymbolTable(symbols: List<Symbol>, config: DumpConfig): String {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
-                nativeGenerateSymbolTable(symbolsJson)
+                nativeGenerateSymbolTable(
+                    symbolsJson,
+                    config.includeVirtualAddresses,
+                    config.includeRva,
+                    config.includeFileOffsets,
+                    config.includeSymbolSizes,
+                    config.includeSectionNames
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
                 "// Error generating SymbolTable.txt: ${e.message}"
@@ -271,6 +280,8 @@ class NativeLibWrapper {
             classesJson: String,
             namespacesJson: String,
             generateComments: Boolean,
+            includeMethodSignatures: Boolean,
+            includeVirtualAddresses: Boolean,
             includeRva: Boolean,
             includeFileOffsets: Boolean,
             includeSymbolSizes: Boolean,
@@ -278,7 +289,14 @@ class NativeLibWrapper {
             detectNamespaces: Boolean
         ): String
 
-        private external fun nativeGenerateSymbolTable(symbolsJson: String): String
+        private external fun nativeGenerateSymbolTable(
+            symbolsJson: String,
+            includeVirtualAddresses: Boolean,
+            includeRva: Boolean,
+            includeFileOffsets: Boolean,
+            includeSymbolSizes: Boolean,
+            includeSectionNames: Boolean
+        ): String
 
         private external fun nativeGenerateJsonExport(
             elfInfoJson: String,

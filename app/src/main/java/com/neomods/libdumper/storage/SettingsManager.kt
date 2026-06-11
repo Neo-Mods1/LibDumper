@@ -1,6 +1,7 @@
 package com.neomods.libdumper.storage
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -26,6 +27,9 @@ class SettingsManager @Inject constructor(
 ) {
 
     private val dataStore = context.dataStore
+
+    private val localePrefs: SharedPreferences =
+        context.getSharedPreferences("locale_prefs", Context.MODE_PRIVATE)
 
     companion object {
         private val THEME_MODE = stringPreferencesKey("theme_mode")
@@ -61,7 +65,7 @@ class SettingsManager @Inject constructor(
     }.stateIn(
         scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = "en"
+        initialValue = localePrefs.getString("lang", "en") ?: "en"
     )
 
     val themeMode: StateFlow<ThemeMode> = dataStore.data.map { preferences ->
@@ -133,6 +137,7 @@ class SettingsManager @Inject constructor(
         dataStore.edit { preferences ->
             preferences[LANGUAGE] = lang
         }
+        localePrefs.edit().putString("lang", lang).apply()
     }
 
     suspend fun setDumpLocation(location: String) {

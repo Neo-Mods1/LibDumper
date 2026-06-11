@@ -232,7 +232,7 @@ class MainViewModel @Inject constructor(
 
                 val symbolTable = if (_dumpConfig.value.generateSymbolTable) {
                     withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateSymbolTable(symbols)
+                        NativeLibWrapper.generateSymbolTable(symbols, _dumpConfig.value)
                     }
                 } else null
 
@@ -242,8 +242,12 @@ class MainViewModel @Inject constructor(
                     }
                 } else null
 
-                val dumpInfo = generateDumpInfo(elfInfo, symbols, classes, namespaces, startTime)
-                val credits = generateCredits()
+                val dumpInfo = if (_dumpConfig.value.generateDumpInfo) {
+                    generateDumpInfo(elfInfo, symbols, classes, namespaces, startTime)
+                } else null
+                val credits = if (_dumpConfig.value.generateCredits) {
+                    generateCredits()
+                } else null
 
                 _uiState.value = _uiState.value.copy(
                     dumpProgress = DumpProgress("Saving Output", 0.9f, "Saving files to disk...")

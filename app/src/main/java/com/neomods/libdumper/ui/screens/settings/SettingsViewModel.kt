@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.neomods.libdumper.domain.ThemeMode
 import com.neomods.libdumper.storage.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,6 +39,9 @@ class SettingsViewModel @Inject constructor(
             initialValue = "en"
         )
 
+    private val _showRestartNotice = MutableStateFlow(false)
+    val showRestartNotice: StateFlow<Boolean> = _showRestartNotice.asStateFlow()
+
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             settingsManager.setThemeMode(mode)
@@ -50,8 +55,15 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setLanguage(lang: String) {
+        val current = language.value
+        if (lang == current) return
         viewModelScope.launch {
             settingsManager.setLanguage(lang)
+            _showRestartNotice.value = true
         }
+    }
+
+    fun dismissRestartNotice() {
+        _showRestartNotice.value = false
     }
 }

@@ -356,6 +356,8 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
     classes_json: JString,
     namespaces_json: JString,
     generate_comments: jboolean,
+    include_method_signatures: jboolean,
+    include_virtual_addresses: jboolean,
     include_rva: jboolean,
     include_file_offsets: jboolean,
     include_symbol_sizes: jboolean,
@@ -396,6 +398,8 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
     
     let config = DumpConfig {
         generate_comments: generate_comments != 0,
+        include_method_signatures: include_method_signatures != 0,
+        include_virtual_addresses: include_virtual_addresses != 0,
         include_rva: include_rva != 0,
         include_file_offsets: include_file_offsets != 0,
         include_symbol_sizes: include_symbol_sizes != 0,
@@ -420,6 +424,11 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
     mut env: JNIEnv,
     _class: JClass,
     symbols_json: JString,
+    include_virtual_addresses: jboolean,
+    include_rva: jboolean,
+    include_file_offsets: jboolean,
+    include_symbol_sizes: jboolean,
+    include_section_names: jboolean,
 ) -> jstring {
     let symbols_str: String = match env.get_string(&symbols_json) {
         Ok(s) => s.into(),
@@ -438,7 +447,25 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
     };
     
     let output: String = symbols.iter()
-        .map(|s| s.name.clone())
+        .map(|s| {
+            let mut parts = vec![s.name.clone()];
+            if include_rva != 0 && s.rva != 0 {
+                parts.push(format!("RVA:0x{:X}", s.rva));
+            }
+            if include_virtual_addresses != 0 && s.address != 0 {
+                parts.push(format!("VA:0x{:X}", s.address));
+            }
+            if include_file_offsets != 0 && s.file_offset != 0 {
+                parts.push(format!("Offset:0x{:X}", s.file_offset));
+            }
+            if include_symbol_sizes != 0 && s.size != 0 {
+                parts.push(format!("Size:0x{:X}", s.size));
+            }
+            if include_section_names != 0 && !s.section.is_empty() && s.section != "UNKNOWN" {
+                parts.push(format!("Section:{}", s.section));
+            }
+            parts.join(" ")
+        })
         .collect::<Vec<_>>()
         .join("\n");
     

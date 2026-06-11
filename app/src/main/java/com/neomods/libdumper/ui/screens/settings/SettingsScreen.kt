@@ -31,11 +31,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,12 +80,26 @@ fun SettingsScreen(
     val currentTheme by viewModel.themeMode.collectAsState()
     val currentDumpLocation by viewModel.dumpLocation.collectAsState()
     val currentLang by viewModel.language.collectAsState()
+    val showRestartNotice by viewModel.showRestartNotice.collectAsState()
 
     var showThemeDialog by remember { mutableStateOf(false) }
     var showDumpLocationDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(showRestartNotice) {
+        if (showRestartNotice) {
+            snackbarHostState.showSnackbar(
+                message = context.getString(R.string.restart_required),
+                duration = androidx.compose.material3.SnackbarDuration.Long
+            )
+            viewModel.dismissRestartNotice()
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {

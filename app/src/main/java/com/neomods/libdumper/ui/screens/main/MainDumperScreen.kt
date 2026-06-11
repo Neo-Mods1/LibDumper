@@ -55,10 +55,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.neomods.libdumper.R
 import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.DumpProgress
 import com.neomods.libdumper.domain.ElfInfo
@@ -94,7 +96,7 @@ fun MainDumperScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Lib Dumper",
+                        text = stringResource(R.string.main_title),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -103,14 +105,14 @@ fun MainDumperScreen(
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.settings),
                             modifier = Modifier.size(24.dp)
                         )
                     }
                     IconButton(onClick = onNavigateToAbout) {
                         Icon(
                             imageVector = Icons.Default.Info,
-                            contentDescription = "About",
+                            contentDescription = stringResource(R.string.about),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -154,14 +156,14 @@ fun MainDumperScreen(
 
             item {
                 ExpandableConfigCard(
-                    title = "Symbol Sources",
+                    title = stringResource(R.string.symbol_sources),
                     config = dumpConfig,
                     checkboxes = listOf(
-                        Triple("Extract .symtab", dumpConfig.extractSymtab) { v -> dumpConfig.copy(extractSymtab = v) },
-                        Triple("Extract .dynsym", dumpConfig.extractDynsym) { v -> dumpConfig.copy(extractDynsym = v) },
-                        Triple("Exported symbols", dumpConfig.extractExported) { v -> dumpConfig.copy(extractExported = v) },
-                        Triple("Imported symbols", dumpConfig.extractImported) { v -> dumpConfig.copy(extractImported = v) },
-                        Triple("Raw symbol names", dumpConfig.dumpRawNames) { v -> dumpConfig.copy(dumpRawNames = v) },
+                        Triple(stringResource(R.string.extract_symtab), dumpConfig.extractSymtab) { v -> dumpConfig.copy(extractSymtab = v) },
+                        Triple(stringResource(R.string.extract_dynsym), dumpConfig.extractDynsym) { v -> dumpConfig.copy(extractDynsym = v) },
+                        Triple(stringResource(R.string.exported_symbols), dumpConfig.extractExported) { v -> dumpConfig.copy(extractExported = v) },
+                        Triple(stringResource(R.string.imported_symbols), dumpConfig.extractImported) { v -> dumpConfig.copy(extractImported = v) },
+                        Triple(stringResource(R.string.raw_symbol_names), dumpConfig.dumpRawNames) { v -> dumpConfig.copy(dumpRawNames = v) },
                     ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
@@ -169,21 +171,21 @@ fun MainDumperScreen(
 
             item {
                 ExpandableConfigCard(
-                    title = "Reconstruction",
+                    title = stringResource(R.string.reconstruction),
                     config = dumpConfig,
                     checkboxes = listOf(
-                        Triple("C++ reconstruction", dumpConfig.generateCppReconstruction) { v -> dumpConfig.copy(generateCppReconstruction = v) },
-                        Triple("Group methods into classes", dumpConfig.groupMethodsIntoClasses) { v -> dumpConfig.copy(groupMethodsIntoClasses = v) },
-                        Triple("Group static methods", dumpConfig.groupStaticMethods) { v -> dumpConfig.copy(groupStaticMethods = v) },
-                        Triple("Detect constructors", dumpConfig.detectConstructors) { v -> dumpConfig.copy(detectConstructors = v) },
-                        Triple("Detect destructors", dumpConfig.detectDestructors) { v -> dumpConfig.copy(detectDestructors = v) },
-                        Triple("Detect overloaded methods", dumpConfig.detectOverloadedMethods) { v -> dumpConfig.copy(detectOverloadedMethods = v) },
-                        Triple("Detect namespaces", dumpConfig.detectNamespaces) { v -> dumpConfig.copy(detectNamespaces = v) },
-                        Triple("Generate comments", dumpConfig.generateComments) { v -> dumpConfig.copy(generateComments = v) },
-                        Triple("Method signatures", dumpConfig.includeMethodSignatures) { v -> dumpConfig.copy(includeMethodSignatures = v) },
-                        Triple("Return types", dumpConfig.includeReturnTypes) { v -> dumpConfig.copy(includeReturnTypes = v) },
-                        Triple("Parameter types", dumpConfig.includeParameterTypes) { v -> dumpConfig.copy(includeParameterTypes = v) },
-                        Triple("Inheritance detection", dumpConfig.attemptInheritanceDetection) { v -> dumpConfig.copy(attemptInheritanceDetection = v) },
+                        Triple(stringResource(R.string.cpp_reconstruction), dumpConfig.generateCppReconstruction) { v -> dumpConfig.copy(generateCppReconstruction = v) },
+                        Triple(stringResource(R.string.group_methods_into_classes), dumpConfig.groupMethodsIntoClasses) { v -> dumpConfig.copy(groupMethodsIntoClasses = v) },
+                        Triple(stringResource(R.string.group_static_methods), dumpConfig.groupStaticMethods) { v -> dumpConfig.copy(groupStaticMethods = v) },
+                        Triple(stringResource(R.string.detect_constructors), dumpConfig.detectConstructors) { v -> dumpConfig.copy(detectConstructors = v) },
+                        Triple(stringResource(R.string.detect_destructors), dumpConfig.detectDestructors) { v -> dumpConfig.copy(detectDestructors = v) },
+                        Triple(stringResource(R.string.detect_overloaded_methods), dumpConfig.detectOverloadedMethods) { v -> dumpConfig.copy(detectOverloadedMethods = v) },
+                        Triple(stringResource(R.string.detect_namespaces), dumpConfig.detectNamespaces) { v -> dumpConfig.copy(detectNamespaces = v) },
+                        Triple(stringResource(R.string.generate_comments), dumpConfig.generateComments) { v -> dumpConfig.copy(generateComments = v) },
+                        Triple(stringResource(R.string.method_signatures), dumpConfig.includeMethodSignatures) { v -> dumpConfig.copy(includeMethodSignatures = v) },
+                        Triple(stringResource(R.string.return_types), dumpConfig.includeReturnTypes) { v -> dumpConfig.copy(includeReturnTypes = v) },
+                        Triple(stringResource(R.string.parameter_types), dumpConfig.includeParameterTypes) { v -> dumpConfig.copy(includeParameterTypes = v) },
+                        Triple(stringResource(R.string.inheritance_detection), dumpConfig.attemptInheritanceDetection) { v -> dumpConfig.copy(attemptInheritanceDetection = v) },
                     ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
@@ -191,14 +193,14 @@ fun MainDumperScreen(
 
             item {
                 ExpandableConfigCard(
-                    title = "Address Info",
+                    title = stringResource(R.string.address_info),
                     config = dumpConfig,
                     checkboxes = listOf(
-                        Triple("Virtual addresses", dumpConfig.includeVirtualAddresses) { v -> dumpConfig.copy(includeVirtualAddresses = v) },
-                        Triple("RVA", dumpConfig.includeRva) { v -> dumpConfig.copy(includeRva = v) },
-                        Triple("File offsets", dumpConfig.includeFileOffsets) { v -> dumpConfig.copy(includeFileOffsets = v) },
-                        Triple("Symbol sizes", dumpConfig.includeSymbolSizes) { v -> dumpConfig.copy(includeSymbolSizes = v) },
-                        Triple("Section names", dumpConfig.includeSectionNames) { v -> dumpConfig.copy(includeSectionNames = v) },
+                        Triple(stringResource(R.string.virtual_addresses), dumpConfig.includeVirtualAddresses) { v -> dumpConfig.copy(includeVirtualAddresses = v) },
+                        Triple(stringResource(R.string.rva), dumpConfig.includeRva) { v -> dumpConfig.copy(includeRva = v) },
+                        Triple(stringResource(R.string.file_offsets), dumpConfig.includeFileOffsets) { v -> dumpConfig.copy(includeFileOffsets = v) },
+                        Triple(stringResource(R.string.symbol_sizes), dumpConfig.includeSymbolSizes) { v -> dumpConfig.copy(includeSymbolSizes = v) },
+                        Triple(stringResource(R.string.section_names), dumpConfig.includeSectionNames) { v -> dumpConfig.copy(includeSectionNames = v) },
                     ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
@@ -206,14 +208,14 @@ fun MainDumperScreen(
 
             item {
                 ExpandableConfigCard(
-                    title = "Output Files",
+                    title = stringResource(R.string.output_files),
                     config = dumpConfig,
                     checkboxes = listOf(
-                        Triple("Dump.cpp", dumpConfig.generateDumpCpp) { v -> dumpConfig.copy(generateDumpCpp = v) },
-                        Triple("SymbolTable.txt", dumpConfig.generateSymbolTable) { v -> dumpConfig.copy(generateSymbolTable = v) },
-                        Triple("Credits.txt", dumpConfig.generateCredits) { v -> dumpConfig.copy(generateCredits = v) },
-                        Triple("DumpInfo.txt", dumpConfig.generateDumpInfo) { v -> dumpConfig.copy(generateDumpInfo = v) },
-                        Triple("JSON export", dumpConfig.generateJson) { v -> dumpConfig.copy(generateJson = v) },
+                        Triple(stringResource(R.string.dump_cpp_file), dumpConfig.generateDumpCpp) { v -> dumpConfig.copy(generateDumpCpp = v) },
+                        Triple(stringResource(R.string.symbol_table_file), dumpConfig.generateSymbolTable) { v -> dumpConfig.copy(generateSymbolTable = v) },
+                        Triple(stringResource(R.string.credits_file), dumpConfig.generateCredits) { v -> dumpConfig.copy(generateCredits = v) },
+                        Triple(stringResource(R.string.dump_info_file), dumpConfig.generateDumpInfo) { v -> dumpConfig.copy(generateDumpInfo = v) },
+                        Triple(stringResource(R.string.json_export), dumpConfig.generateJson) { v -> dumpConfig.copy(generateJson = v) },
                     ),
                     onConfigChange = { viewModel.updateDumpConfig(it) }
                 )
@@ -233,7 +235,7 @@ fun MainDumperScreen(
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
-                        text = "Generate Dump",
+                        text = stringResource(R.string.generate_dump),
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
@@ -293,14 +295,14 @@ fun SelectedLibraryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Selected Library",
+                    text = stringResource(R.string.selected_library),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
                 if (elfInfo != null) {
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "Loaded",
+                        contentDescription = stringResource(R.string.loaded),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
@@ -310,17 +312,17 @@ fun SelectedLibraryCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             if (elfInfo != null) {
-                InfoRow("Name", elfInfo.fileName)
-                InfoRow("Arch", elfInfo.architecture)
-                InfoRow("Size", FileUtils.formatFileSize(elfInfo.fileSize))
+                InfoRow(stringResource(R.string.name_label), elfInfo.fileName)
+                InfoRow(stringResource(R.string.arch), elfInfo.architecture)
+                InfoRow(stringResource(R.string.size), FileUtils.formatFileSize(elfInfo.fileSize))
                 InfoRow(
-                    "Status",
-                    if (elfInfo.isValid) "Valid ELF" else "Invalid",
+                    stringResource(R.string.status),
+                    if (elfInfo.isValid) stringResource(R.string.valid_elf) else stringResource(R.string.invalid_elf),
                     valueColor = if (elfInfo.isValid) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
             } else {
                 Text(
-                    text = "No library selected",
+                    text = stringResource(R.string.no_library_selected),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -346,7 +348,7 @@ fun SelectedLibraryCard(
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Select Library", style = MaterialTheme.typography.bodyLarge)
+                Text(text = stringResource(R.string.select_library), style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
@@ -395,7 +397,7 @@ fun RecentLibrariesCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Recent Libraries",
+                text = stringResource(R.string.recent_libraries),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -459,7 +461,7 @@ fun ExpandableConfigCard(
                 )
                 Icon(
                     imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -523,12 +525,12 @@ fun DumpProgressDialog(
         onDismissRequest = { },
         shape = RoundedCornerShape(20.dp),
         title = {
-            Text(text = "Dumping Library", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.dumping_library), style = MaterialTheme.typography.titleMedium)
         },
         text = {
             Column {
                 Text(
-                    text = progress?.stage ?: "Starting...",
+                    text = progress?.stage ?: stringResource(R.string.starting),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(6.dp))
@@ -552,7 +554,7 @@ fun DumpProgressDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Cancel", style = MaterialTheme.typography.labelLarge)
+                Text(text = stringResource(R.string.cancel), style = MaterialTheme.typography.labelLarge)
             }
         }
     )
@@ -567,21 +569,21 @@ fun DumpCompleteDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(20.dp),
         title = {
-            Text(text = "Dump Complete", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.dump_complete), style = MaterialTheme.typography.titleMedium)
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Library: ${result.elfInfo.fileName}", style = MaterialTheme.typography.bodyMedium)
-                Text("Symbols: ${result.totalSymbols}", style = MaterialTheme.typography.bodyMedium)
-                Text("Classes: ${result.totalClasses}", style = MaterialTheme.typography.bodyMedium)
-                Text("Methods: ${result.totalMethods}", style = MaterialTheme.typography.bodyMedium)
-                Text("Namespaces: ${result.totalNamespaces}", style = MaterialTheme.typography.bodyMedium)
-                Text("Duration: ${result.dumpDurationMs}ms", style = MaterialTheme.typography.bodyMedium)
+                Text("${stringResource(R.string.library)}: ${result.elfInfo.fileName}", style = MaterialTheme.typography.bodyMedium)
+                Text("${stringResource(R.string.symbols)}: ${result.totalSymbols}", style = MaterialTheme.typography.bodyMedium)
+                Text("${stringResource(R.string.classes)}: ${result.totalClasses}", style = MaterialTheme.typography.bodyMedium)
+                Text("${stringResource(R.string.methods)}: ${result.totalMethods}", style = MaterialTheme.typography.bodyMedium)
+                Text("${stringResource(R.string.namespaces)}: ${result.totalNamespaces}", style = MaterialTheme.typography.bodyMedium)
+                Text("${stringResource(R.string.duration)}: ${result.dumpDurationMs}ms", style = MaterialTheme.typography.bodyMedium)
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "OK", style = MaterialTheme.typography.labelLarge)
+                Text(text = stringResource(R.string.ok), style = MaterialTheme.typography.labelLarge)
             }
         }
     )
@@ -596,14 +598,14 @@ fun ErrorDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(20.dp),
         title = {
-            Text(text = "Error", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(R.string.error), style = MaterialTheme.typography.titleMedium)
         },
         text = {
             Text(text = message, style = MaterialTheme.typography.bodyMedium)
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "OK", style = MaterialTheme.typography.labelLarge)
+                Text(text = stringResource(R.string.ok), style = MaterialTheme.typography.labelLarge)
             }
         }
     )
