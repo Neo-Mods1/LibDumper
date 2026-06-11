@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use goblin::elf::Elf;
 use goblin::elf::sym::{Sym, STB_GLOBAL, STB_WEAK, STT_FUNC, STT_OBJECT, STT_NOTYPE, STT_SECTION, STT_FILE, STT_COMMON, STT_TLS};
 
@@ -25,12 +25,12 @@ impl SymbolExtractor {
         let mut symbols = Vec::new();
         
         if config.extract_symtab {
-            let symtab_symbols = self.extract_from_section(elf, data, ".symtab", true)?;
+            let symtab_symbols = self.extract_from_section(elf, data, ".symtab", true, config)?;
             symbols.extend(symtab_symbols);
         }
         
         if config.extract_dynsym {
-            let dynsym_symbols = self.extract_from_section(elf, data, ".dynsym", false)?;
+            let dynsym_symbols = self.extract_from_section(elf, data, ".dynsym", false, config)?;
             symbols.extend(dynsym_symbols);
         }
         
@@ -56,6 +56,7 @@ impl SymbolExtractor {
         data: &[u8],
         section_name: &str,
         is_symtab: bool,
+        config: &DumpConfig,
     ) -> Result<Vec<Symbol>> {
         let mut symbols = Vec::new();
         
