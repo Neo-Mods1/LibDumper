@@ -1,147 +1,185 @@
 # Lib Dumper
 
-A professional Android ELF (.so) analysis and symbol dumping tool.
+A professional Android application for analyzing ELF shared libraries and reconstructing C++ symbol information from compiled native code.
+
+---
+
+## Overview
+
+Lib Dumper reads `.so` files (Android native shared libraries), extracts symbol tables, demangles C++ names, and generates clean, human-readable C++ reconstruction files. It is built for reverse engineers, security researchers, and developers who need to understand the internal structure of compiled native libraries.
+
+---
 
 ## Features
 
-- **ELF Parsing**: Full ELF format support with architecture detection
-- **Symbol Extraction**: Extract from .symtab, .dynsym, exported, and imported symbols
-- **Symbol Demangling**: C++ symbol demangling with cpp_demangle
-- **Class Reconstruction**: Detect and reconstruct C++ classes from mangled symbols
-- **Namespace Detection**: Identify and organize namespaces
-- **Method Grouping**: Group methods by class, detect constructors/destructors
-- **C++ Output Generation**: Generate clean C++ reconstruction files
-- **JSON Export**: Structured data export for external tooling
-- **Modern UI**: Material 3 design with Jetpack Compose
-- **Dark/Light Themes**: System, Light, and Dark theme support
-- **Progress Notifications**: Real-time dump progress updates
-- **Storage Access Framework**: Browse and select files from any storage provider
+### ELF Parsing
 
-## Architecture
+- Full ELF32 and ELF64 format support
+- Automatic architecture detection (ARM, ARM64, x86, x86_64)
+- Endianness and file type detection
+- Shared library validation
 
-- **Frontend**: Kotlin, Jetpack Compose, Material 3, MVVM, Hilt DI
-- **Backend**: Rust, JNI, goblin, cpp_demangle, anyhow, serde, rayon
-- **Storage**: DataStore Preferences, SAF
+### Symbol Extraction
+
+- Extract symbols from `.symtab` (static symbol table)
+- Extract symbols from `.dynsym` (dynamic symbol table)
+- Extract exported symbols (globally visible)
+- Extract imported symbols (externally referenced)
+- Toggle between raw mangled names and demangled C++ names
+
+### C++ Name Demangling
+
+- Full C++ name demangling
+- Class name extraction from mangled symbols
+- Namespace parsing from qualified names
+- Constructor and destructor detection
+- Static method identification
+- Overloaded method detection and grouping
+
+### Class Reconstruction
+
+- Automatic grouping of methods into their owning classes
+- Constructor and destructor classification
+- Static method separation
+- Overload grouping
+- Inheritance relationship detection
+- Namespace-aware class organization
+
+### Namespace Detection
+
+- Hierarchical namespace tree construction
+- Parent-child namespace relationships
+- Class-to-namespace mapping
+
+### C++ Output Generation
+
+- Clean `Dump.cpp` with reconstructed class declarations
+- Method signatures with return types and parameters
+- Optional address comments (virtual address, RVA, file offset, size, section)
+- Namespace wrapping with proper formatting
+- Alphabetical class ordering
+
+### Symbol Table Output
+
+- Flat symbol list with configurable detail level
+- Optional address information per symbol (VA, RVA, offset, size, section)
+
+### JSON Export
+
+- Complete structured export of all analysis data
+- Metadata with timestamps and configuration used
+- Statistics summary (symbol counts, class counts, method counts)
+
+---
+
+## Configuration
+
+All dump options are configurable through the UI and persist across sessions.
+
+### Symbol Sources
+
+| Option | Description |
+|--------|-------------|
+| Extract .symtab | Include symbols from the static symbol table |
+| Extract .dynsym | Include symbols from the dynamic symbol table |
+| Exported symbols | Include globally visible symbols |
+| Imported symbols | Include externally referenced symbols |
+| Raw symbol names | Use mangled names instead of demangled names |
+
+### Reconstruction
+
+| Option | Description |
+|--------|-------------|
+| C++ reconstruction | Generate C++ class declarations from symbols |
+| Group methods into classes | Organize methods by their owning class |
+| Group static methods | Separate static methods from instance methods |
+| Detect constructors | Identify and classify constructor methods |
+| Detect destructors | Identify and classify destructor methods |
+| Detect overloaded methods | Group methods with the same name |
+| Detect namespaces | Build namespace hierarchy from symbol names |
+| Generate comments | Add address and size info as comments in Dump.cpp |
+| Method signatures | Show full signatures vs. just method names |
+| Return types | Include return type information |
+| Parameter types | Include parameter type information |
+| Inheritance detection | Attempt to detect class inheritance relationships |
+
+### Address Information
+
+| Option | Description |
+|--------|-------------|
+| Virtual addresses | Include absolute virtual memory addresses |
+| RVA | Include relative virtual addresses (offset from image base) |
+| File offsets | Include binary file offsets |
+| Symbol sizes | Include symbol sizes in bytes |
+| Section names | Include the ELF section each symbol belongs to |
+
+### Output Files
+
+| Option | Description |
+|--------|-------------|
+| Dump.cpp | Generate the C++ reconstruction file |
+| SymbolTable.txt | Generate the symbol table file |
+| Credits.txt | Generate the credits file |
+| DumpInfo.txt | Generate the dump information file |
+| JSON export | Generate the structured JSON export |
+
+---
+
+## Usage
+
+1. Install the APK on an Android device running API 29 or higher
+2. Grant storage permissions when prompted
+3. Tap "Select Library" and navigate to a `.so` file using the system file picker
+4. Review the detected ELF information (architecture, file size, validity)
+5. Configure dump options using the expandable config cards
+6. Tap "Generate Dump" to begin analysis
+7. Monitor progress via the dialog or notification
+8. Find output files at the configured dump location (default: `/storage/emulated/0/Dumper/`)
+
+### Recent Libraries
+
+Previously analyzed libraries appear below the file picker for quick re-analysis. Tap any entry to reload it without browsing again.
+
+### Settings
+
+- **Theme Mode** -- Switch between System, Light, and Dark themes
+- **Language** -- Choose from 10 supported languages
+- **Dump Location** -- Configure where output files are saved
+
+---
+
+## Output Files
+
+| File | Description |
+|------|-------------|
+| `Dump.cpp` | Reconstructed C++ class and namespace declarations |
+| `SymbolTable.txt` | Symbol names with optional address information |
+| `DumpInfo.txt` | Analysis metadata, file info, and statistics |
+| `Credits.txt` | Application credits and contact information |
+| `dump.json` | Full structured JSON export |
+
+---
+
+## Supported Languages
+
+English, Spanish, Portuguese, French, German, Japanese, Chinese (Simplified), Russian, Arabic, Indonesian.
+
+---
 
 ## Requirements
 
 - Android 10 (API 29) or higher
-- Rust toolchain for native library compilation
-- Android NDK
+- No root required
+- Storage permission for file access
 
-## Building
-
-### Prerequisites
-
-1. Install Android Studio
-2. Install Rust toolchain: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-3. Add Android targets:
-   ```bash
-   rustup target add aarch64-linux-android
-   rustup target add armv7-linux-androideabi
-   rustup target add x86_64-linux-android
-   rustup target add i686-linux-android
-   ```
-
-### Build Steps
-
-1. Clone the repository
-2. Build the Rust library:
-   ```bash
-   cd rust
-   cargo build --release
-   ```
-3. Copy the compiled libraries to `app/src/main/jniLibs/`
-4. Build the Android app:
-   ```bash
-   ./gradlew assembleRelease
-   ```
-
-## Project Structure
-
-```
-LibDumper/
-├── app/
-│   ├── src/main/
-│   │   ├── java/com/neomods/libdumper/
-│   │   │   ├── ui/
-│   │   │   │   ├── navigation/
-│   │   │   │   ├── screens/
-│   │   │   │   ├── components/
-│   │   │   │   └── theme/
-│   │   │   ├── viewmodels/
-│   │   │   ├── repository/
-│   │   │   ├── domain/
-│   │   │   ├── storage/
-│   │   │   ├── jni/
-│   │   │   └── utils/
-│   │   └── res/
-│   └── build.gradle.kts
-├── rust/
-│   ├── src/
-│   │   ├── lib.rs
-│   │   ├── elf_parser.rs
-│   │   ├── symbol_extractor.rs
-│   │   ├── demangler.rs
-│   │   ├── class_reconstructor.rs
-│   │   ├── namespace_detector.rs
-│   │   ├── json_exporter.rs
-│   │   ├── jni_bridge.rs
-│   │   └── types.rs
-│   └── Cargo.toml
-├── build.gradle.kts
-├── settings.gradle.kts
-└── README.md
-```
-
-## Output Files
-
-- **Dump.cpp**: Reconstructed C++ structures with methods, classes, and namespaces
-- **SymbolTable.txt**: Raw symbol names, one per line
-- **DumpInfo.txt**: Analysis metadata and statistics
-- **Credits.txt**: Application credits and usage instructions
-- **dump.json**: Structured JSON export for external tooling
-
-## Configuration
-
-The application provides extensive configuration options:
-
-### Symbol Sources
-- Extract .symtab
-- Extract .dynsym
-- Extract exported symbols
-- Extract imported symbols
-- Dump raw symbol names
-
-### Reconstruction Options
-- Generate C++ reconstruction
-- Group methods into classes
-- Group static methods
-- Detect constructors/destructors
-- Detect overloaded methods
-- Detect namespaces
-- Generate comments
-- Include method signatures, return types, parameter types
-- Attempt inheritance detection
-
-### Address Information
-- Include Virtual Addresses
-- Include RVA (Relative Virtual Address)
-- Include File Offsets
-- Include Symbol Sizes
-- Include Section Names
-
-### Output Files
-- Generate Dump.cpp
-- Generate SymbolTable.txt
-- Generate Credits.txt
-- Generate DumpInfo.txt
-- Generate JSON export
+---
 
 ## License
 
 MIT License
 
+---
+
 ## Disclaimer
 
-Use this application responsibly. The developer is not responsible for misuse of generated output.
+Use this application responsibly. The developer is not responsible for misuse of generated output. Always ensure you have proper authorization before analyzing third-party software.
