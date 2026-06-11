@@ -164,7 +164,8 @@ class NativeLibWrapper {
                     config.includeRva,
                     config.includeFileOffsets,
                     config.includeSymbolSizes,
-                    config.includeSectionNames
+                    config.includeSectionNames,
+                    config.detectNamespaces
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -273,7 +274,8 @@ class NativeLibWrapper {
             includeRva: Boolean,
             includeFileOffsets: Boolean,
             includeSymbolSizes: Boolean,
-            includeSectionNames: Boolean
+            includeSectionNames: Boolean,
+            detectNamespaces: Boolean
         ): String
 
         private external fun nativeGenerateSymbolTable(symbolsJson: String): String

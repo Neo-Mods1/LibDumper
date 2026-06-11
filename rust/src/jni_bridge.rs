@@ -360,6 +360,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
     include_file_offsets: jboolean,
     include_symbol_sizes: jboolean,
     include_section_names: jboolean,
+    detect_namespaces: jboolean,
 ) -> jstring {
     let classes_str: String = match env.get_string(&classes_json) {
         Ok(s) => s.into(),
@@ -399,6 +400,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
         include_file_offsets: include_file_offsets != 0,
         include_symbol_sizes: include_symbol_sizes != 0,
         include_section_names: include_section_names != 0,
+        detect_namespaces: detect_namespaces != 0,
         ..Default::default()
     };
     
