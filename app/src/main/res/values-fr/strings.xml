@@ -91,7 +91,7 @@
     <string name="package_label">Paquet</string>
     <string name="rust_backend">Backend Rust</string>
     <string name="dynamic_colors">Couleurs Dynamiques</string>
-    <string name="dynamic_colors_desc">Utiliser les couleurs basées sur le fond d'écran sur Android 12+</string>
+    <string name="dynamic_colors_desc">Utiliser les couleurs basées sur le fond d\'écran sur Android 12+</string>
     <string name="developer">Développeur</string>
     <string name="community">Communauté</string>
     <string name="telegram_desc">Canal</string>
