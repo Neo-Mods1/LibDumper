@@ -25,6 +25,13 @@ class SettingsViewModel @Inject constructor(
             initialValue = ThemeMode.SYSTEM
         )
 
+    val dynamicColors: StateFlow<Boolean> = settingsManager.dynamicColors
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = true
+        )
+
     val dumpLocation: StateFlow<String> = settingsManager.dumpLocation
         .stateIn(
             scope = viewModelScope,
@@ -45,6 +52,12 @@ class SettingsViewModel @Inject constructor(
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
             settingsManager.setThemeMode(mode)
+        }
+    }
+
+    fun setDynamicColors(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsManager.setDynamicColors(enabled)
         }
     }
 

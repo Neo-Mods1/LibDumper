@@ -1,6 +1,5 @@
 package com.neomods.libdumper.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,73 +8,63 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 import com.neomods.libdumper.domain.ThemeMode
 
 private val DarkColorScheme = darkColorScheme(
-    primary = AccentBlue,
-    onPrimary = Color.White,
-    primaryContainer = AccentBlue.copy(alpha = 0.15f),
-    onPrimaryContainer = AccentBlue,
-    secondary = AccentTeal,
-    onSecondary = Color.White,
-    secondaryContainer = AccentTeal.copy(alpha = 0.15f),
-    onSecondaryContainer = AccentTeal,
-    tertiary = AccentPurple,
-    onTertiary = Color.White,
-    tertiaryContainer = AccentPurple.copy(alpha = 0.15f),
-    onTertiaryContainer = AccentPurple,
-    background = DarkBackground,
-    onBackground = TextPrimaryDark,
-    surface = DarkSurface,
-    onSurface = TextPrimaryDark,
-    surfaceVariant = DarkSurfaceVariant,
-    onSurfaceVariant = TextSecondaryDark,
-    outline = DarkCardBorder,
-    error = AccentRed,
-    onError = Color.White,
-    errorContainer = AccentRed.copy(alpha = 0.15f),
-    onErrorContainer = AccentRed,
+    primary = Color(0xFF90CAF9),
+    onPrimary = Color(0xFF003258),
+    primaryContainer = Color(0xFF004A77),
+    onPrimaryContainer = Color(0xFFCDE5FF),
+    secondary = Color(0xFFBBC7DB),
+    onSecondary = Color(0xFF263141),
+    secondaryContainer = Color(0xFF3C4858),
+    onSecondaryContainer = Color(0xFFD7E3F7),
+    tertiary = Color(0xFFD6BEE4),
+    onTertiary = Color(0xFF3B2948),
+    tertiaryContainer = Color(0xFF523F5F),
+    onTertiaryContainer = Color(0xFFF2DAFF),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    background = Color(0xFF1A1C1E),
+    onBackground = Color(0xFFE2E2E6),
+    surface = Color(0xFF1A1C1E),
+    onSurface = Color(0xFFE2E2E6),
+    surfaceVariant = Color(0xFF43474E),
+    onSurfaceVariant = Color(0xFFC3C6CF),
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = AccentBlue,
-    onPrimary = Color.White,
-    primaryContainer = AccentBlue.copy(alpha = 0.12f),
-    onPrimaryContainer = AccentBlue,
-    secondary = AccentTeal,
-    onSecondary = Color.White,
-    secondaryContainer = AccentTeal.copy(alpha = 0.12f),
-    onSecondaryContainer = AccentTeal,
-    tertiary = AccentPurple,
-    onTertiary = Color.White,
-    tertiaryContainer = AccentPurple.copy(alpha = 0.12f),
-    onTertiaryContainer = AccentPurple,
-    background = LightBackground,
-    onBackground = TextPrimary,
-    surface = LightSurface,
-    onSurface = TextPrimary,
-    surfaceVariant = LightSurfaceVariant,
-    onSurfaceVariant = TextSecondary,
-    outline = LightCardBorder,
-    error = AccentRed,
-    onError = Color.White,
-    errorContainer = AccentRed.copy(alpha = 0.12f),
-    onErrorContainer = AccentRed,
+    primary = Color(0xFF0062A1),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFD1E4FF),
+    onPrimaryContainer = Color(0xFF001D35),
+    secondary = Color(0xFF545F70),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFD8E3F8),
+    onSecondaryContainer = Color(0xFF111C2B),
+    tertiary = Color(0xFF6A5778),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFF2DAFF),
+    onTertiaryContainer = Color(0xFF251431),
+    error = Color(0xFFBA1A1A),
+    onError = Color(0xFFFFFFFF),
+    background = Color(0xFFFDFCFF),
+    onBackground = Color(0xFF1A1C1E),
+    surface = Color(0xFFFDFCFF),
+    onSurface = Color(0xFF1A1C1E),
+    surfaceVariant = Color(0xFFDFE2EB),
+    onSurfaceVariant = Color(0xFF43474E),
 )
 
 @Composable
 fun LibDumperTheme(
     themeMode: ThemeMode = ThemeMode.SYSTEM,
-    dynamicColor: Boolean = false,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val isDark = when (themeMode) {
+    val darkTheme = when (themeMode) {
         ThemeMode.DARK -> true
         ThemeMode.LIGHT -> false
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -84,28 +73,15 @@ fun LibDumperTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        isDark -> DarkColorScheme
+        darkTheme -> DarkColorScheme
         else -> LightColorScheme
-    }
-
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Color.Transparent.toArgb()
-            window.navigationBarColor = Color.Transparent.toArgb()
-            val controller = WindowCompat.getInsetsController(window, view)
-            controller.isAppearanceLightStatusBars = !isDark
-            controller.isAppearanceLightNavigationBars = !isDark
-        }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        shapes = Shapes,
+        typography = Typography(),
         content = content
     )
 }

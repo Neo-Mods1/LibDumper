@@ -11,6 +11,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.ThemeMode
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,8 +33,11 @@ class SettingsManager @Inject constructor(
     private val localePrefs: SharedPreferences =
         context.getSharedPreferences("locale_prefs", Context.MODE_PRIVATE)
 
+    private val scope = CoroutineScope(Dispatchers.Main)
+
     companion object {
         private val THEME_MODE = stringPreferencesKey("theme_mode")
+        private val DYNAMIC_COLORS = booleanPreferencesKey("dynamic_colors")
         private val DUMP_LOCATION = stringPreferencesKey("dump_location")
         private val EXTRACT_SYMTAB = booleanPreferencesKey("extract_symtab")
         private val EXTRACT_DYNSYM = booleanPreferencesKey("extract_dynsym")
@@ -68,7 +73,7 @@ class SettingsManager @Inject constructor(
     val language: StateFlow<String> = dataStore.data.map { preferences ->
         preferences[LANGUAGE] ?: "en"
     }.stateIn(
-        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        scope = scope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = localePrefs.getString("lang", "en") ?: "en"
     )
@@ -80,15 +85,23 @@ class SettingsManager @Inject constructor(
             else -> ThemeMode.SYSTEM
         }
     }.stateIn(
-        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        scope = scope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ThemeMode.SYSTEM
+    )
+
+    val dynamicColors: StateFlow<Boolean> = dataStore.data.map { preferences ->
+        preferences[DYNAMIC_COLORS] ?: true
+    }.stateIn(
+        scope = scope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = true
     )
 
     val dumpLocation: StateFlow<String> = dataStore.data.map { preferences ->
         preferences[DUMP_LOCATION] ?: "/storage/emulated/0/Dumper"
     }.stateIn(
-        scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main),
+        scope = scope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = "/storage/emulated/0/Dumper"
     )
@@ -140,6 +153,12 @@ class SettingsManager @Inject constructor(
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { preferences ->
             preferences[THEME_MODE] = mode.name
+        }
+    }
+
+    suspend fun setDynamicColors(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[DYNAMIC_COLORS] = enabled
         }
     }
 
@@ -215,5 +234,9 @@ class SettingsManager @Inject constructor(
         dataStore.edit { preferences ->
             preferences[RECENT_LIBRARIES] = "[]"
         }
+    }
+
+    fun getLocaleCodeSync(): String {
+        return localePrefs.getString("lang", "") ?: ""
     }
 }

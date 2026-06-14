@@ -90,4 +90,14 @@
     <string name="version">版本</string>
     <string name="package_label">包名</string>
     <string name="rust_backend">Rust 后端</string>
+    <string name="dynamic_colors">动态颜色</string>
+    <string name="dynamic_colors_desc">在 Android 12+ 上使用基于壁纸的颜色</string>
+    <string name="developer">开发者</string>
+    <string name="community">社区</string>
+    <string name="telegram_desc">频道</string>
+    <string name="discussion_desc">讨论组</string>
+    <string name="github_desc">源代码</string>
+    <string name="bug_report">报告错误</string>
+    <string name="bug_report_desc">报告问题</string>
+    <string name="made_with_rust">由 Neo Mods 使用 Rust 制作</string>
 </resources>

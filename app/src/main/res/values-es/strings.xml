@@ -90,4 +90,14 @@
     <string name="version">Versión</string>
     <string name="package_label">Paquete</string>
     <string name="rust_backend">Backend Rust</string>
+    <string name="dynamic_colors">Colores Dinámicos</string>
+    <string name="dynamic_colors_desc">Usar colores basados en el fondo de pantalla en Android 12+</string>
+    <string name="developer">Desarrollador</string>
+    <string name="community">Comunidad</string>
+    <string name="telegram_desc">Canal</string>
+    <string name="discussion_desc">Grupo de discusión</string>
+    <string name="github_desc">Código fuente</string>
+    <string name="bug_report">Reportar Error</string>
+    <string name="bug_report_desc">Reportar problemas</string>
+    <string name="made_with_rust">Hecho con Rust por Neo Mods</string>
 </resources>

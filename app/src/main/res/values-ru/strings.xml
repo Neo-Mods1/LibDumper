@@ -90,4 +90,14 @@
     <string name="version">Версия</string>
     <string name="package_label">Пакет</string>
     <string name="rust_backend">Rust Бэкенд</string>
+    <string name="dynamic_colors">Динамические цвета</string>
+    <string name="dynamic_colors_desc">Использовать цвета на основе обоев на Android 12+</string>
+    <string name="developer">Разработчик</string>
+    <string name="community">Сообщество</string>
+    <string name="telegram_desc">Канал</string>
+    <string name="discussion_desc">Группа обсуждений</string>
+    <string name="github_desc">Исходный код</string>
+    <string name="bug_report">Сообщить об ошибке</string>
+    <string name="bug_report_desc">Сообщить о проблемах</string>
+    <string name="made_with_rust">Сделано с Rust от Neo Mods</string>
 </resources>

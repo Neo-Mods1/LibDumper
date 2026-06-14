@@ -90,4 +90,14 @@
     <string name="version">バージョン</string>
     <string name="package_label">パッケージ</string>
     <string name="rust_backend">Rust バックエンド</string>
+    <string name="dynamic_colors">ダイナミックカラー</string>
+    <string name="dynamic_colors_desc">Android 12+で壁紙ベースのカラーを使用</string>
+    <string name="developer">開発者</string>
+    <string name="community">コミュニティ</string>
+    <string name="telegram_desc">チャンネル</string>
+    <string name="discussion_desc">ディスカッショングループ</string>
+    <string name="github_desc">ソースコード</string>
+    <string name="bug_report">バグ報告</string>
+    <string name="bug_report_desc">問題を報告</string>
+    <string name="made_with_rust">Neo ModsがRustで制作</string>
 </resources>

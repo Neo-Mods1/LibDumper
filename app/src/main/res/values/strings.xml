@@ -90,4 +90,14 @@
     <string name="version">Version</string>
     <string name="package_label">Package</string>
     <string name="rust_backend">Rust Backend</string>
+    <string name="dynamic_colors">Dynamic Colors</string>
+    <string name="dynamic_colors_desc">Use wallpaper-based colors on Android 12+</string>
+    <string name="developer">Developer</string>
+    <string name="community">Community</string>
+    <string name="telegram_desc">Channel</string>
+    <string name="discussion_desc">Discussion group</string>
+    <string name="github_desc">Source code</string>
+    <string name="bug_report">Bug Report</string>
+    <string name="bug_report_desc">Report issues</string>
+    <string name="made_with_rust">Made with Rust by Neo Mods</string>
 </resources>

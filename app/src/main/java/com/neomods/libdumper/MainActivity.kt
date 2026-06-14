@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,32 +25,28 @@ class MainActivity : ComponentActivity() {
     lateinit var settingsManager: SettingsManager
 
     override fun attachBaseContext(newBase: Context) {
-        val lang = newBase.getSharedPreferences("locale_prefs", MODE_PRIVATE)
-            .getString("lang", "") ?: ""
-        if (lang.isNotEmpty()) {
-            val locale = Locale(lang)
-            Locale.setDefault(locale)
-            val config = newBase.resources.configuration
-            config.setLocale(locale)
-            config.setLayoutDirection(locale)
-            super.attachBaseContext(newBase.createConfigurationContext(config))
+        settingsManager = SettingsManager(newBase)
+        val localeCode = settingsManager.getLocaleCodeSync()
+        val locale = if (localeCode.isNotEmpty()) {
+            Locale(localeCode)
         } else {
-            super.attachBaseContext(newBase)
+            Locale.getDefault()
         }
+        val config = newBase.resources.configuration
+        config.setLocale(locale)
+        val context = newBase.createConfigurationContext(config)
+        super.attachBaseContext(context)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
         setContent {
             val themeMode by settingsManager.themeMode.collectAsState()
+            val dynamicColors by settingsManager.dynamicColors.collectAsState()
 
-            LibDumperTheme(themeMode = themeMode) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+            LibDumperTheme(themeMode = themeMode, dynamicColor = dynamicColors) {
+                Surface(modifier = Modifier.fillMaxSize()) {
                     LibDumperNavGraph()
                 }
             }
