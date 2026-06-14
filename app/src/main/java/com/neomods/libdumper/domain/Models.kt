@@ -104,9 +104,6 @@ data class DumpConfig(
 
 data class DumpResult(
     val elfInfo: ElfInfo,
-    val symbols: List<Symbol>,
-    val classes: List<ClassInfo>,
-    val namespaces: List<NamespaceInfo>,
     val dumpCpp: String?,
     val symbolTable: String?,
     val dumpInfo: String?,

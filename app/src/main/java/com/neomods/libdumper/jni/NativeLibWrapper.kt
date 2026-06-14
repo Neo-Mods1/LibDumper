@@ -1,12 +1,10 @@
 package com.neomods.libdumper.jni
 
-import com.neomods.libdumper.domain.ClassInfo
 import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.ElfInfo
-import com.neomods.libdumper.domain.NamespaceInfo
-import com.neomods.libdumper.domain.Symbol
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
+import java.io.StringReader
 
 class NativeLibWrapper {
 
@@ -52,10 +50,7 @@ class NativeLibWrapper {
             }
         }
 
-        fun extractSymbols(
-            path: String,
-            config: DumpConfig
-        ): List<Symbol> {
+        fun extractSymbols(path: String, config: DumpConfig): Int {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val json = nativeExtractSymbols(
@@ -91,21 +86,17 @@ class NativeLibWrapper {
                 lastSymbolsJson = json
                 lastClassesJson = null
                 lastNamespacesJson = null
-                val type = object : TypeToken<List<Symbol>>() {}.type
-                gson.fromJson(json, type)
+                countJsonArrayItems(json)
             } catch (e: Exception) {
                 e.printStackTrace()
-                emptyList()
+                0
             }
         }
 
-        fun reconstructClasses(
-            symbols: List<Symbol>,
-            config: DumpConfig
-        ): List<ClassInfo> {
+        fun reconstructClasses(config: DumpConfig): Int {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
+                val symbolsJson = lastSymbolsJson ?: return 0
                 val json = nativeReconstructClasses(
                     symbolsJson,
                     config.generateCppReconstruction,
@@ -117,46 +108,36 @@ class NativeLibWrapper {
                     config.attemptInheritanceDetection
                 )
                 lastClassesJson = json
-                val type = object : TypeToken<List<ClassInfo>>() {}.type
-                gson.fromJson(json, type)
+                countJsonArrayItems(json)
             } catch (e: Exception) {
                 e.printStackTrace()
-                emptyList()
+                0
             }
         }
 
-        fun detectNamespaces(
-            symbols: List<Symbol>,
-            classes: List<ClassInfo>,
-            config: DumpConfig
-        ): List<NamespaceInfo> {
+        fun detectNamespaces(config: DumpConfig): Int {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
-                val classesJson = lastClassesJson ?: gson.toJson(classes)
+                val symbolsJson = lastSymbolsJson ?: return 0
+                val classesJson = lastClassesJson ?: return 0
                 val json = nativeDetectNamespaces(
                     symbolsJson,
                     classesJson,
                     config.detectNamespaces
                 )
                 lastNamespacesJson = json
-                val type = object : TypeToken<List<NamespaceInfo>>() {}.type
-                gson.fromJson(json, type)
+                countJsonArrayItems(json)
             } catch (e: Exception) {
                 e.printStackTrace()
-                emptyList()
+                0
             }
         }
 
-        fun generateDumpCpp(
-            classes: List<ClassInfo>,
-            namespaces: List<NamespaceInfo>,
-            config: DumpConfig
-        ): String {
+        fun generateDumpCpp(config: DumpConfig): String {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val classesJson = lastClassesJson ?: gson.toJson(classes)
-                val namespacesJson = lastNamespacesJson ?: gson.toJson(namespaces)
+                val classesJson = lastClassesJson ?: return "// No class data"
+                val namespacesJson = lastNamespacesJson ?: "[]"
                 nativeGenerateDumpCpp(
                     classesJson,
                     namespacesJson,
@@ -175,10 +156,10 @@ class NativeLibWrapper {
             }
         }
 
-        fun generateSymbolTable(symbols: List<Symbol>, config: DumpConfig): String {
+        fun generateSymbolTable(config: DumpConfig): String {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
-                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
+                val symbolsJson = lastSymbolsJson ?: return "// No symbol data"
                 nativeGenerateSymbolTable(
                     symbolsJson,
                     config.includeVirtualAddresses,
@@ -193,18 +174,13 @@ class NativeLibWrapper {
             }
         }
 
-        fun generateJsonExport(
-            elfInfo: ElfInfo,
-            symbols: List<Symbol>,
-            classes: List<ClassInfo>,
-            namespaces: List<NamespaceInfo>
-        ): String {
+        fun generateJsonExport(elfInfo: ElfInfo): String {
             if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
             return try {
                 val elfInfoJson = gson.toJson(elfInfo)
-                val symbolsJson = lastSymbolsJson ?: gson.toJson(symbols)
-                val classesJson = lastClassesJson ?: gson.toJson(classes)
-                val namespacesJson = lastNamespacesJson ?: gson.toJson(namespaces)
+                val symbolsJson = lastSymbolsJson ?: "[]"
+                val classesJson = lastClassesJson ?: "[]"
+                val namespacesJson = lastNamespacesJson ?: "[]"
                 nativeGenerateJsonExport(
                     elfInfoJson,
                     symbolsJson,
@@ -223,6 +199,22 @@ class NativeLibWrapper {
                 nativeGetVersion()
             } catch (e: Exception) {
                 "1.0.0"
+            }
+        }
+
+        private fun countJsonArrayItems(json: String): Int {
+            return try {
+                val reader = JsonReader(StringReader(json))
+                var count = 0
+                reader.beginArray()
+                while (reader.hasNext()) {
+                    reader.skipValue()
+                    count++
+                }
+                reader.endArray()
+                count
+            } catch (e: Exception) {
+                0
             }
         }
 

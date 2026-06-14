@@ -158,16 +158,12 @@ class MainViewModel @Inject constructor(
 
     fun startDump(context: Context) {
         val filePath = currentFilePath ?: run {
-            _uiState.value = _uiState.value.copy(
-                error = "No library selected"
-            )
+            _uiState.value = _uiState.value.copy(error = "No library selected")
             return
         }
 
         val elfInfo = _uiState.value.elfInfo ?: run {
-            _uiState.value = _uiState.value.copy(
-                error = "No library selected"
-            )
+            _uiState.value = _uiState.value.copy(error = "No library selected")
             return
         }
 
@@ -181,18 +177,19 @@ class MainViewModel @Inject constructor(
 
             try {
                 val startTime = System.currentTimeMillis()
+                val config = _dumpConfig.value
 
                 _uiState.value = _uiState.value.copy(
                     dumpProgress = DumpProgress("Loading ELF", 0.1f, "Loading ELF file...")
                 )
                 notificationHelper.showDumpProgress("Loading ELF", 10)
 
-                val symbols = withContext(Dispatchers.IO) {
-                    NativeLibWrapper.extractSymbols(filePath, _dumpConfig.value)
+                val symbolCount = withContext(Dispatchers.IO) {
+                    NativeLibWrapper.extractSymbols(filePath, config)
                 }
 
                 _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Reading Symbols", 0.3f, "Extracted ${symbols.size} symbols")
+                    dumpProgress = DumpProgress("Reading Symbols", 0.3f, "Extracted $symbolCount symbols")
                 )
                 notificationHelper.showDumpProgress("Reading Symbols", 30)
 
@@ -201,21 +198,21 @@ class MainViewModel @Inject constructor(
                 )
                 notificationHelper.showDumpProgress("Detecting Classes", 50)
 
-                val classes = withContext(Dispatchers.IO) {
-                    NativeLibWrapper.reconstructClasses(symbols, _dumpConfig.value)
+                val classCount = withContext(Dispatchers.IO) {
+                    NativeLibWrapper.reconstructClasses(config)
                 }
 
                 _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Detecting Namespaces", 0.6f, "Found ${classes.size} classes")
+                    dumpProgress = DumpProgress("Detecting Namespaces", 0.6f, "Found $classCount classes")
                 )
                 notificationHelper.showDumpProgress("Detecting Namespaces", 60)
 
-                val namespaces = withContext(Dispatchers.IO) {
-                    NativeLibWrapper.detectNamespaces(symbols, classes, _dumpConfig.value)
+                val namespaceCount = withContext(Dispatchers.IO) {
+                    NativeLibWrapper.detectNamespaces(config)
                 }
 
                 _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Building Structures", 0.7f, "Found ${namespaces.size} namespaces")
+                    dumpProgress = DumpProgress("Building Structures", 0.7f, "Found $namespaceCount namespaces")
                 )
                 notificationHelper.showDumpProgress("Building Structures", 70)
 
@@ -224,28 +221,29 @@ class MainViewModel @Inject constructor(
                 )
                 notificationHelper.showDumpProgress("Generating Files", 80)
 
-                val dumpCpp = if (_dumpConfig.value.generateDumpCpp) {
+                val dumpCpp = if (config.generateDumpCpp) {
                     withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateDumpCpp(classes, namespaces, _dumpConfig.value)
+                        NativeLibWrapper.generateDumpCpp(config)
                     }
                 } else null
 
-                val symbolTable = if (_dumpConfig.value.generateSymbolTable) {
+                val symbolTable = if (config.generateSymbolTable) {
                     withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateSymbolTable(symbols, _dumpConfig.value)
+                        NativeLibWrapper.generateSymbolTable(config)
                     }
                 } else null
 
-                val jsonExport = if (_dumpConfig.value.generateJson) {
+                val jsonExport = if (config.generateJson) {
                     withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateJsonExport(elfInfo, symbols, classes, namespaces)
+                        NativeLibWrapper.generateJsonExport(elfInfo)
                     }
                 } else null
 
-                val dumpInfo = if (_dumpConfig.value.generateDumpInfo) {
-                    generateDumpInfo(elfInfo, symbols, classes, namespaces, startTime)
+                val dumpInfo = if (config.generateDumpInfo) {
+                    generateDumpInfo(elfInfo, symbolCount, classCount, namespaceCount, startTime)
                 } else null
-                val credits = if (_dumpConfig.value.generateCredits) {
+
+                val credits = if (config.generateCredits) {
                     generateCredits()
                 } else null
 
@@ -262,29 +260,21 @@ class MainViewModel @Inject constructor(
                         symbolTable,
                         dumpInfo,
                         credits,
-                        jsonExport,
-                        symbols.size,
-                        classes.size,
-                        classes.sumOf { it.methods.size + it.constructors.size + it.destructors.size + it.staticMethods.size },
-                        namespaces.size,
-                        System.currentTimeMillis() - startTime
+                        jsonExport
                     )
                 }
 
                 val result = DumpResult(
                     elfInfo = elfInfo,
-                    symbols = symbols,
-                    classes = classes,
-                    namespaces = namespaces,
                     dumpCpp = dumpCpp,
                     symbolTable = symbolTable,
                     dumpInfo = dumpInfo,
                     credits = credits,
                     jsonExport = jsonExport,
-                    totalSymbols = symbols.size,
-                    totalClasses = classes.size,
-                    totalMethods = classes.sumOf { it.methods.size + it.constructors.size + it.destructors.size + it.staticMethods.size },
-                    totalNamespaces = namespaces.size,
+                    totalSymbols = symbolCount,
+                    totalClasses = classCount,
+                    totalMethods = 0,
+                    totalNamespaces = namespaceCount,
                     dumpDurationMs = System.currentTimeMillis() - startTime
                 )
 
@@ -327,9 +317,9 @@ class MainViewModel @Inject constructor(
 
     private fun generateDumpInfo(
         elfInfo: ElfInfo,
-        symbols: List<com.neomods.libdumper.domain.Symbol>,
-        classes: List<com.neomods.libdumper.domain.ClassInfo>,
-        namespaces: List<com.neomods.libdumper.domain.NamespaceInfo>,
+        symbolCount: Int,
+        classCount: Int,
+        namespaceCount: Int,
         startTime: Long
     ): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -344,10 +334,9 @@ class MainViewModel @Inject constructor(
             |File Size: ${FileUtils.formatFileSize(elfInfo.fileSize)}
             |Build Time: ${dateFormat.format(Date())}
             |
-            |Total Symbols: ${symbols.size}
-            |Recovered Classes: ${classes.size}
-            |Recovered Methods: ${classes.sumOf { it.methods.size + it.constructors.size + it.destructors.size + it.staticMethods.size }}
-            |Recovered Namespaces: ${namespaces.size}
+            |Total Symbols: $symbolCount
+            |Recovered Classes: $classCount
+            |Recovered Namespaces: $namespaceCount
             |
             |Dump Duration: ${duration}ms
         """.trimMargin()
@@ -367,7 +356,7 @@ class MainViewModel @Inject constructor(
             | https://t.me/NeoModsChannel
             |
             |Community:
-            | https://t.me/+RYSsITD6K-U4NzI0 /* url might be outdated, join channel to find latest bia url above */
+            | https://t.me/+RYSsITD6K-U4NzI0
             |
             |Timestamp:
             |${dateFormat.format(Date())}
@@ -384,36 +373,17 @@ class MainViewModel @Inject constructor(
         symbolTable: String?,
         dumpInfo: String?,
         credits: String?,
-        jsonExport: String?,
-        totalSymbols: Int,
-        totalClasses: Int,
-        totalMethods: Int,
-        totalNamespaces: Int,
-        durationMs: Long
+        jsonExport: String?
     ): String {
         val basePath = settingsManager.dumpLocation.first()
         val dumpIndex = FileUtils.findNextAvailableDumpIndex(basePath)
         val dumpDir = FileUtils.createDumpDirectory(basePath, dumpIndex)
 
-        dumpCpp?.let {
-            FileUtils.writeToFile(File(dumpDir, "Dump.cpp"), it)
-        }
-
-        symbolTable?.let {
-            FileUtils.writeToFile(File(dumpDir, "SymbolTable.txt"), it)
-        }
-
-        dumpInfo?.let {
-            FileUtils.writeToFile(File(dumpDir, "DumpInfo.txt"), it)
-        }
-
-        credits?.let {
-            FileUtils.writeToFile(File(dumpDir, "Credits.txt"), it)
-        }
-
-        jsonExport?.let {
-            FileUtils.writeToFile(File(dumpDir, "dump.json"), it)
-        }
+        dumpCpp?.let { FileUtils.writeToFile(File(dumpDir, "Dump.cpp"), it) }
+        symbolTable?.let { FileUtils.writeToFile(File(dumpDir, "SymbolTable.txt"), it) }
+        dumpInfo?.let { FileUtils.writeToFile(File(dumpDir, "DumpInfo.txt"), it) }
+        credits?.let { FileUtils.writeToFile(File(dumpDir, "Credits.txt"), it) }
+        jsonExport?.let { FileUtils.writeToFile(File(dumpDir, "dump.json"), it) }
 
         return dumpDir.absolutePath
     }
