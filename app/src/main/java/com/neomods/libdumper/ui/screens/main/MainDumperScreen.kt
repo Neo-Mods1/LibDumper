@@ -1,9 +1,5 @@
 package com.neomods.libdumper.ui.screens.main
 
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -39,13 +35,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +67,9 @@ import com.neomods.libdumper.utils.FileUtils
 fun MainDumperScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToAbout: () -> Unit,
+    onNavigateToFilePicker: () -> Unit,
+    selectedFilePath: String? = null,
+    onFileConsumed: () -> Unit = {},
     viewModel: MainViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -80,14 +79,10 @@ fun MainDumperScreen(
 
     var showProgressDialog by remember { mutableStateOf(false) }
 
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        uri?.let {
-            context.contentResolver.takePersistableUriPermission(
-                it, Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
-            viewModel.selectLibrary(context, it)
+    LaunchedEffect(selectedFilePath) {
+        selectedFilePath?.let { path ->
+            viewModel.selectLibraryByPath(context, path)
+            onFileConsumed()
         }
     }
 
@@ -137,9 +132,7 @@ fun MainDumperScreen(
             item {
                 SelectedLibraryCard(
                     elfInfo = uiState.elfInfo,
-                    onSelectLibrary = {
-                        filePickerLauncher.launch(arrayOf("application/octet-stream", "*/*"))
-                    }
+                    onSelectLibrary = onNavigateToFilePicker
                 )
             }
 
@@ -576,7 +569,6 @@ fun DumpCompleteDialog(
                 Text("${stringResource(R.string.library)}: ${result.elfInfo.fileName}", style = MaterialTheme.typography.bodyMedium)
                 Text("${stringResource(R.string.symbols)}: ${result.totalSymbols}", style = MaterialTheme.typography.bodyMedium)
                 Text("${stringResource(R.string.classes)}: ${result.totalClasses}", style = MaterialTheme.typography.bodyMedium)
-                Text("${stringResource(R.string.methods)}: ${result.totalMethods}", style = MaterialTheme.typography.bodyMedium)
                 Text("${stringResource(R.string.namespaces)}: ${result.totalNamespaces}", style = MaterialTheme.typography.bodyMedium)
                 Text("${stringResource(R.string.duration)}: ${result.dumpDurationMs}ms", style = MaterialTheme.typography.bodyMedium)
             }
