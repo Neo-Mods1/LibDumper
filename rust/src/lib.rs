@@ -4,6 +4,7 @@ pub mod demangler;
 pub mod class_reconstructor;
 pub mod namespace_detector;
 pub mod json_exporter;
+pub mod dump_pipeline;
 pub mod jni_bridge;
 pub mod types;
 

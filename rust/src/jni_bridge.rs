@@ -3,6 +3,7 @@ use jni::objects::{JClass, JString};
 use jni::sys::{jboolean, jstring};
 use std::sync::Mutex;
 
+use crate::dump_pipeline;
 use crate::elf_parser::ElfParser;
 use crate::symbol_extractor::SymbolExtractor;
 use crate::class_reconstructor::ClassReconstructor;
@@ -592,6 +593,111 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
         }
         Err(e) => {
             let _ = env.throw_new("java/lang/RuntimeException", format!("JSON export failed: {}", e));
+            std::ptr::null_mut()
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Companion_nativeRunDump(
+    mut env: JNIEnv,
+    _class: JClass,
+    lib_path: JString,
+    output_dir: JString,
+    extract_symtab: jboolean,
+    extract_dynsym: jboolean,
+    extract_exported: jboolean,
+    extract_imported: jboolean,
+    dump_raw_names: jboolean,
+    generate_cpp_reconstruction: jboolean,
+    group_methods_into_classes: jboolean,
+    group_static_methods: jboolean,
+    detect_constructors: jboolean,
+    detect_destructors: jboolean,
+    detect_overloaded_methods: jboolean,
+    detect_namespaces: jboolean,
+    generate_comments: jboolean,
+    include_method_signatures: jboolean,
+    include_return_types: jboolean,
+    include_parameter_types: jboolean,
+    attempt_inheritance_detection: jboolean,
+    include_virtual_addresses: jboolean,
+    include_rva: jboolean,
+    include_file_offsets: jboolean,
+    include_symbol_sizes: jboolean,
+    include_section_names: jboolean,
+    generate_dump_cpp: jboolean,
+    generate_symbol_table: jboolean,
+    generate_credits: jboolean,
+    generate_dump_info: jboolean,
+    generate_json: jboolean,
+) -> jstring {
+    let lib_path_str: String = match env.get_string(&lib_path) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid library path");
+            return std::ptr::null_mut();
+        }
+    };
+
+    let output_dir_str: String = match env.get_string(&output_dir) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid output directory");
+            return std::ptr::null_mut();
+        }
+    };
+
+    let config = DumpConfig {
+        extract_symtab: extract_symtab != 0,
+        extract_dynsym: extract_dynsym != 0,
+        extract_exported: extract_exported != 0,
+        extract_imported: extract_imported != 0,
+        dump_raw_names: dump_raw_names != 0,
+        generate_cpp_reconstruction: generate_cpp_reconstruction != 0,
+        group_methods_into_classes: group_methods_into_classes != 0,
+        group_static_methods: group_static_methods != 0,
+        detect_constructors: detect_constructors != 0,
+        detect_destructors: detect_destructors != 0,
+        detect_overloaded_methods: detect_overloaded_methods != 0,
+        detect_namespaces: detect_namespaces != 0,
+        generate_comments: generate_comments != 0,
+        include_method_signatures: include_method_signatures != 0,
+        include_return_types: include_return_types != 0,
+        include_parameter_types: include_parameter_types != 0,
+        attempt_inheritance_detection: attempt_inheritance_detection != 0,
+        include_virtual_addresses: include_virtual_addresses != 0,
+        include_rva: include_rva != 0,
+        include_file_offsets: include_file_offsets != 0,
+        include_symbol_sizes: include_symbol_sizes != 0,
+        include_section_names: include_section_names != 0,
+        generate_dump_cpp: generate_dump_cpp != 0,
+        generate_symbol_table: generate_symbol_table != 0,
+        generate_credits: generate_credits != 0,
+        generate_dump_info: generate_dump_info != 0,
+        generate_json: generate_json != 0,
+    };
+
+    match dump_pipeline::run_dump(&lib_path_str, &output_dir_str, &config) {
+        Ok(stats) => {
+            match serde_json::to_string(&stats) {
+                Ok(json) => {
+                    match env.new_string(&json) {
+                        Ok(s) => s.into_raw(),
+                        Err(_) => {
+                            let _ = env.throw_new("java/lang/RuntimeException", "Failed to create string");
+                            std::ptr::null_mut()
+                        }
+                    }
+                }
+                Err(e) => {
+                    let _ = env.throw_new("java/lang/RuntimeException", format!("JSON serialization failed: {}", e));
+                    std::ptr::null_mut()
+                }
+            }
+        }
+        Err(e) => {
+            let _ = env.throw_new("java/lang/RuntimeException", format!("Dump failed: {}", e));
             std::ptr::null_mut()
         }
     }

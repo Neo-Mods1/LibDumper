@@ -179,110 +179,65 @@ class MainViewModel @Inject constructor(
                 val startTime = System.currentTimeMillis()
                 val config = _dumpConfig.value
 
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Loading ELF", 0.1f, "Loading ELF file...")
-                )
-                notificationHelper.showDumpProgress("Loading ELF", 10)
+                val basePath = settingsManager.dumpLocation.first()
+                val dumpIndex = FileUtils.findNextAvailableDumpIndex(basePath)
+                val dumpDir = FileUtils.createDumpDirectory(basePath, dumpIndex)
+                val outputDir = dumpDir.absolutePath
 
-                val symbolCount = withContext(Dispatchers.IO) {
-                    NativeLibWrapper.extractSymbols(filePath, config)
+                _uiState.value = _uiState.value.copy(
+                    dumpProgress = DumpProgress("Analyzing Library", 0.3f, "Parsing ELF and extracting symbols...")
+                )
+                notificationHelper.showDumpProgress("Analyzing Library", 30)
+
+                val stats = withContext(Dispatchers.IO) {
+                    NativeLibWrapper.runDump(filePath, outputDir, config)
                 }
 
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Reading Symbols", 0.3f, "Extracted $symbolCount symbols")
-                )
-                notificationHelper.showDumpProgress("Reading Symbols", 30)
-
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Detecting Classes", 0.5f, "Analyzing class structures...")
-                )
-                notificationHelper.showDumpProgress("Detecting Classes", 50)
-
-                val classCount = withContext(Dispatchers.IO) {
-                    NativeLibWrapper.reconstructClasses(config)
-                }
-
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Detecting Namespaces", 0.6f, "Found $classCount classes")
-                )
-                notificationHelper.showDumpProgress("Detecting Namespaces", 60)
-
-                val namespaceCount = withContext(Dispatchers.IO) {
-                    NativeLibWrapper.detectNamespaces(config)
-                }
-
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Building Structures", 0.7f, "Found $namespaceCount namespaces")
-                )
-                notificationHelper.showDumpProgress("Building Structures", 70)
-
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Generating Files", 0.8f, "Generating output files...")
-                )
-                notificationHelper.showDumpProgress("Generating Files", 80)
-
-                var dumpCpp: String? = null
-                var symbolTable: String? = null
-                var jsonExport: String? = null
-
-                if (config.generateDumpCpp) {
-                    dumpCpp = withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateDumpCpp(config)
-                    }
-                }
-
-                if (config.generateSymbolTable) {
-                    symbolTable = withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateSymbolTable(config)
-                    }
-                }
-
-                if (config.generateJson) {
-                    jsonExport = withContext(Dispatchers.IO) {
-                        NativeLibWrapper.generateJsonExport(elfInfo)
-                    }
-                }
-
-                val dumpInfo = if (config.generateDumpInfo) {
-                    generateDumpInfo(elfInfo, symbolCount, classCount, namespaceCount, startTime)
-                } else null
-
-                val credits = if (config.generateCredits) {
-                    generateCredits()
-                } else null
-
-                _uiState.value = _uiState.value.copy(
-                    dumpProgress = DumpProgress("Saving Output", 0.9f, "Saving files to disk...")
-                )
-                notificationHelper.showDumpProgress("Saving Output", 90)
-
-                val dumpPath = withContext(Dispatchers.IO) {
-                    saveDumpFiles(
-                        context,
-                        elfInfo,
-                        dumpCpp,
-                        symbolTable,
-                        dumpInfo,
-                        credits,
-                        jsonExport
+                if (stats == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isDumping = false,
+                        dumpProgress = null,
+                        error = "Dump failed: native pipeline returned null"
                     )
+                    notificationHelper.cancelDumpProgress()
+                    notificationHelper.showDumpError("Native pipeline failed")
+                    return@launch
                 }
 
-                dumpCpp = null
-                symbolTable = null
-                jsonExport = null
+                _uiState.value = _uiState.value.copy(
+                    dumpProgress = DumpProgress("Writing Info Files", 0.85f, "Generating DumpInfo and Credits...")
+                )
+                notificationHelper.showDumpProgress("Writing Info Files", 85)
+
+                withContext(Dispatchers.IO) {
+                    if (config.generateDumpInfo) {
+                        val dumpInfo = generateDumpInfo(
+                            elfInfo, stats.totalSymbols, stats.totalClasses,
+                            stats.totalNamespaces, startTime
+                        )
+                        FileUtils.writeToFile(File(dumpDir, "DumpInfo.txt"), dumpInfo)
+                    }
+                    if (config.generateCredits) {
+                        val credits = generateCredits()
+                        FileUtils.writeToFile(File(dumpDir, "Credits.txt"), credits)
+                    }
+                }
+
+                _uiState.value = _uiState.value.copy(
+                    dumpProgress = DumpProgress("Complete", 1.0f, "Done!")
+                )
 
                 val result = DumpResult(
                     elfInfo = elfInfo,
                     dumpCpp = null,
                     symbolTable = null,
-                    dumpInfo = dumpInfo,
-                    credits = credits,
+                    dumpInfo = null,
+                    credits = null,
                     jsonExport = null,
-                    totalSymbols = symbolCount,
-                    totalClasses = classCount,
+                    totalSymbols = stats.totalSymbols,
+                    totalClasses = stats.totalClasses,
                     totalMethods = 0,
-                    totalNamespaces = namespaceCount,
+                    totalNamespaces = stats.totalNamespaces,
                     dumpDurationMs = System.currentTimeMillis() - startTime
                 )
 
@@ -293,7 +248,7 @@ class MainViewModel @Inject constructor(
                 )
 
                 notificationHelper.cancelDumpProgress()
-                notificationHelper.showDumpComplete(dumpPath)
+                notificationHelper.showDumpComplete(outputDir)
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -370,29 +325,7 @@ class MainViewModel @Inject constructor(
             |${dateFormat.format(Date())}
             |
             |Version:
-            |1.0.0
+            |3.0.0
         """.trimMargin()
-    }
-
-    private suspend fun saveDumpFiles(
-        context: Context,
-        elfInfo: ElfInfo,
-        dumpCpp: String?,
-        symbolTable: String?,
-        dumpInfo: String?,
-        credits: String?,
-        jsonExport: String?
-    ): String {
-        val basePath = settingsManager.dumpLocation.first()
-        val dumpIndex = FileUtils.findNextAvailableDumpIndex(basePath)
-        val dumpDir = FileUtils.createDumpDirectory(basePath, dumpIndex)
-
-        dumpCpp?.let { FileUtils.writeToFile(File(dumpDir, "Dump.cpp"), it) }
-        symbolTable?.let { FileUtils.writeToFile(File(dumpDir, "SymbolTable.txt"), it) }
-        dumpInfo?.let { FileUtils.writeToFile(File(dumpDir, "DumpInfo.txt"), it) }
-        credits?.let { FileUtils.writeToFile(File(dumpDir, "Credits.txt"), it) }
-        jsonExport?.let { FileUtils.writeToFile(File(dumpDir, "dump.json"), it) }
-
-        return dumpDir.absolutePath
     }
 }

@@ -3,8 +3,18 @@ package com.neomods.libdumper.jni
 import com.neomods.libdumper.domain.DumpConfig
 import com.neomods.libdumper.domain.ElfInfo
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.google.gson.stream.JsonReader
 import java.io.StringReader
+
+data class DumpStats(
+    @SerializedName("total_symbols") val totalSymbols: Int,
+    @SerializedName("total_classes") val totalClasses: Int,
+    @SerializedName("total_namespaces") val totalNamespaces: Int,
+    @SerializedName("dump_cpp_written") val dumpCppWritten: Boolean,
+    @SerializedName("symbol_table_written") val symbolTableWritten: Boolean,
+    @SerializedName("json_written") val jsonWritten: Boolean
+)
 
 class NativeLibWrapper {
 
@@ -209,6 +219,47 @@ class NativeLibWrapper {
             }
         }
 
+        fun runDump(libPath: String, outputDir: String, config: DumpConfig): DumpStats? {
+            if (!nativeLoaded) throw IllegalStateException("Native library not loaded")
+            return try {
+                val json = nativeRunDump(
+                    libPath,
+                    outputDir,
+                    config.extractSymtab,
+                    config.extractDynsym,
+                    config.extractExported,
+                    config.extractImported,
+                    config.dumpRawNames,
+                    config.generateCppReconstruction,
+                    config.groupMethodsIntoClasses,
+                    config.groupStaticMethods,
+                    config.detectConstructors,
+                    config.detectDestructors,
+                    config.detectOverloadedMethods,
+                    config.detectNamespaces,
+                    config.generateComments,
+                    config.includeMethodSignatures,
+                    config.includeReturnTypes,
+                    config.includeParameterTypes,
+                    config.attemptInheritanceDetection,
+                    config.includeVirtualAddresses,
+                    config.includeRva,
+                    config.includeFileOffsets,
+                    config.includeSymbolSizes,
+                    config.includeSectionNames,
+                    config.generateDumpCpp,
+                    config.generateSymbolTable,
+                    config.generateCredits,
+                    config.generateDumpInfo,
+                    config.generateJson
+                )
+                gson.fromJson(json, DumpStats::class.java)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+
         private fun countJsonArrayItems(json: String): Int {
             return try {
                 val reader = JsonReader(StringReader(json))
@@ -305,5 +356,37 @@ class NativeLibWrapper {
         ): String
 
         private external fun nativeGetVersion(): String
+
+        private external fun nativeRunDump(
+            libPath: String,
+            outputDir: String,
+            extractSymtab: Boolean,
+            extractDynsym: Boolean,
+            extractExported: Boolean,
+            extractImported: Boolean,
+            dumpRawNames: Boolean,
+            generateCppReconstruction: Boolean,
+            groupMethodsIntoClasses: Boolean,
+            groupStaticMethods: Boolean,
+            detectConstructors: Boolean,
+            detectDestructors: Boolean,
+            detectOverloadedMethods: Boolean,
+            detectNamespaces: Boolean,
+            generateComments: Boolean,
+            includeMethodSignatures: Boolean,
+            includeReturnTypes: Boolean,
+            includeParameterTypes: Boolean,
+            attemptInheritanceDetection: Boolean,
+            includeVirtualAddresses: Boolean,
+            includeRva: Boolean,
+            includeFileOffsets: Boolean,
+            includeSymbolSizes: Boolean,
+            includeSectionNames: Boolean,
+            generateDumpCpp: Boolean,
+            generateSymbolTable: Boolean,
+            generateCredits: Boolean,
+            generateDumpInfo: Boolean,
+            generateJson: Boolean
+        ): String
     }
 }
