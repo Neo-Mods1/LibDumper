@@ -221,23 +221,27 @@ class MainViewModel @Inject constructor(
                 )
                 notificationHelper.showDumpProgress("Generating Files", 80)
 
-                val dumpCpp = if (config.generateDumpCpp) {
-                    withContext(Dispatchers.IO) {
+                var dumpCpp: String? = null
+                var symbolTable: String? = null
+                var jsonExport: String? = null
+
+                if (config.generateDumpCpp) {
+                    dumpCpp = withContext(Dispatchers.IO) {
                         NativeLibWrapper.generateDumpCpp(config)
                     }
-                } else null
+                }
 
-                val symbolTable = if (config.generateSymbolTable) {
-                    withContext(Dispatchers.IO) {
+                if (config.generateSymbolTable) {
+                    symbolTable = withContext(Dispatchers.IO) {
                         NativeLibWrapper.generateSymbolTable(config)
                     }
-                } else null
+                }
 
-                val jsonExport = if (config.generateJson) {
-                    withContext(Dispatchers.IO) {
+                if (config.generateJson) {
+                    jsonExport = withContext(Dispatchers.IO) {
                         NativeLibWrapper.generateJsonExport(elfInfo)
                     }
-                } else null
+                }
 
                 val dumpInfo = if (config.generateDumpInfo) {
                     generateDumpInfo(elfInfo, symbolCount, classCount, namespaceCount, startTime)
@@ -264,13 +268,17 @@ class MainViewModel @Inject constructor(
                     )
                 }
 
+                dumpCpp = null
+                symbolTable = null
+                jsonExport = null
+
                 val result = DumpResult(
                     elfInfo = elfInfo,
-                    dumpCpp = dumpCpp,
-                    symbolTable = symbolTable,
+                    dumpCpp = null,
+                    symbolTable = null,
                     dumpInfo = dumpInfo,
                     credits = credits,
-                    jsonExport = jsonExport,
+                    jsonExport = null,
                     totalSymbols = symbolCount,
                     totalClasses = classCount,
                     totalMethods = 0,

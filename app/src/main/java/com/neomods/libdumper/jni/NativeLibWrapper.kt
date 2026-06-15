@@ -181,14 +181,21 @@ class NativeLibWrapper {
                 val symbolsJson = lastSymbolsJson ?: "[]"
                 val classesJson = lastClassesJson ?: "[]"
                 val namespacesJson = lastNamespacesJson ?: "[]"
-                nativeGenerateJsonExport(
+                val result = nativeGenerateJsonExport(
                     elfInfoJson,
                     symbolsJson,
                     classesJson,
                     namespacesJson
                 )
+                lastSymbolsJson = null
+                lastClassesJson = null
+                lastNamespacesJson = null
+                result
             } catch (e: Exception) {
                 e.printStackTrace()
+                lastSymbolsJson = null
+                lastClassesJson = null
+                lastNamespacesJson = null
                 "// Error generating JSON export: ${e.message}"
             }
         }

@@ -5,16 +5,6 @@ use serde_json::{json, Value};
 use crate::types::{DumpResult, DumpConfig, ElfInfo, Symbol, ClassInfo, NamespaceInfo};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct JsonExport {
-    pub metadata: JsonMetadata,
-    pub elf_info: ElfInfo,
-    pub symbols: Vec<Symbol>,
-    pub classes: Vec<ClassInfo>,
-    pub namespaces: Vec<NamespaceInfo>,
-    pub statistics: JsonStatistics,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct JsonMetadata {
     pub version: String,
     pub generator: String,
@@ -24,29 +14,17 @@ pub struct JsonMetadata {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JsonStatistics {
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_symbols: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub exported_symbols: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub imported_symbols: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub function_symbols: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub object_symbols: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_classes: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_methods: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_constructors: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_destructors: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_static_methods: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_usize_from_number")]
     pub total_namespaces: usize,
-    #[serde(deserialize_with = "crate::types::deserialize_u64_from_number")]
     pub dump_duration_ms: u64,
 }
 
@@ -62,22 +40,36 @@ impl JsonExporter {
         result: &DumpResult,
         config: &DumpConfig,
     ) -> Result<String> {
-        let export = JsonExport {
-            metadata: JsonMetadata {
-                version: "1.0.0".to_string(),
-                generator: "Lib Dumper".to_string(),
-                timestamp: chrono::Utc::now().to_rfc3339(),
-                dump_config: config.clone(),
-            },
-            elf_info: result.elf_info.clone(),
-            symbols: result.symbols.clone(),
-            classes: result.classes.clone(),
-            namespaces: result.namespaces.clone(),
-            statistics: self.build_statistics(result),
+        let metadata = JsonMetadata {
+                version: "3.0.0".to_string(),
+            generator: "Lib Dumper".to_string(),
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            dump_config: config.clone(),
         };
-        
-        let json = serde_json::to_string_pretty(&export)?;
-        Ok(json)
+
+        let statistics = self.build_statistics(result);
+
+        let mut output = String::with_capacity(1024);
+        output.push_str("{\"metadata\":");
+        output.push_str(&serde_json::to_string(&metadata)?);
+
+        output.push_str(",\"elf_info\":");
+        output.push_str(&serde_json::to_string(&result.elf_info)?);
+
+        output.push_str(",\"symbols\":");
+        output.push_str(&serde_json::to_string(&result.symbols)?);
+
+        output.push_str(",\"classes\":");
+        output.push_str(&serde_json::to_string(&result.classes)?);
+
+        output.push_str(",\"namespaces\":");
+        output.push_str(&serde_json::to_string(&result.namespaces)?);
+
+        output.push_str(",\"statistics\":");
+        output.push_str(&serde_json::to_string(&statistics)?);
+
+        output.push('}');
+        Ok(output)
     }
 
     pub fn export_compact(
@@ -85,40 +77,12 @@ impl JsonExporter {
         result: &DumpResult,
         config: &DumpConfig,
     ) -> Result<String> {
-        let export = JsonExport {
-            metadata: JsonMetadata {
-                version: "1.0.0".to_string(),
-                generator: "Lib Dumper".to_string(),
-                timestamp: chrono::Utc::now().to_rfc3339(),
-                dump_config: config.clone(),
-            },
-            elf_info: result.elf_info.clone(),
-            symbols: result.symbols.clone(),
-            classes: result.classes.clone(),
-            namespaces: result.namespaces.clone(),
-            statistics: self.build_statistics(result),
-        };
-        
-        let json = serde_json::to_string(&export)?;
-        Ok(json)
+        self.export(result, config)
     }
 
     pub fn to_value(&self, result: &DumpResult, config: &DumpConfig) -> Result<Value> {
-        let export = JsonExport {
-            metadata: JsonMetadata {
-                version: "1.0.0".to_string(),
-                generator: "Lib Dumper".to_string(),
-                timestamp: chrono::Utc::now().to_rfc3339(),
-                dump_config: config.clone(),
-            },
-            elf_info: result.elf_info.clone(),
-            symbols: result.symbols.clone(),
-            classes: result.classes.clone(),
-            namespaces: result.namespaces.clone(),
-            statistics: self.build_statistics(result),
-        };
-        
-        let value = serde_json::to_value(&export)?;
+        let json = self.export(result, config)?;
+        let value = serde_json::from_str(&json)?;
         Ok(value)
     }
 
@@ -126,35 +90,35 @@ impl JsonExporter {
         let exported = result.symbols.iter()
             .filter(|s| s.is_exported)
             .count();
-        
+
         let imported = result.symbols.iter()
             .filter(|s| s.is_imported)
             .count();
-        
+
         let functions = result.symbols.iter()
             .filter(|s| s.is_function)
             .count();
-        
+
         let objects = result.symbols.iter()
             .filter(|s| s.is_object)
             .count();
-        
+
         let total_methods: usize = result.classes.iter()
             .map(|c| c.methods.len() + c.constructors.len() + c.destructors.len() + c.static_methods.len())
             .sum();
-        
+
         let total_constructors: usize = result.classes.iter()
             .map(|c| c.constructors.len())
             .sum();
-        
+
         let total_destructors: usize = result.classes.iter()
             .map(|c| c.destructors.len())
             .sum();
-        
+
         let total_static: usize = result.classes.iter()
             .map(|c| c.static_methods.len())
             .sum();
-        
+
         JsonStatistics {
             total_symbols: result.total_symbols,
             exported_symbols: exported,
@@ -193,19 +157,19 @@ impl JsonExporter {
         let methods: Vec<Value> = class.methods.iter()
             .map(|m| self.format_method_json(m))
             .collect();
-        
+
         let constructors: Vec<Value> = class.constructors.iter()
             .map(|m| self.format_method_json(m))
             .collect();
-        
+
         let destructors: Vec<Value> = class.destructors.iter()
             .map(|m| self.format_method_json(m))
             .collect();
-        
+
         let static_methods: Vec<Value> = class.static_methods.iter()
             .map(|m| self.format_method_json(m))
             .collect();
-        
+
         json!({
             "name": class.name,
             "namespace": class.namespace,

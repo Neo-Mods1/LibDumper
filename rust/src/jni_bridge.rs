@@ -232,7 +232,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+
     let symbols: Vec<Symbol> = match serde_json::from_str(&symbols_str) {
         Ok(s) => s,
         Err(e) => {
@@ -240,6 +240,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
+    drop(symbols_str);
     
     let config = DumpConfig {
         generate_cpp_reconstruction: generate_cpp != 0,
@@ -293,15 +294,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
-    let classes_str: String = match env.get_string(&classes_json) {
-        Ok(s) => s.into(),
-        Err(_) => {
-            let _ = env.throw_new("java/io/IOException", "Invalid classes JSON");
-            return std::ptr::null_mut();
-        }
-    };
-    
+
     let symbols: Vec<Symbol> = match serde_json::from_str(&symbols_str) {
         Ok(s) => s,
         Err(e) => {
@@ -309,7 +302,16 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+    drop(symbols_str);
+
+    let classes_str: String = match env.get_string(&classes_json) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid classes JSON");
+            return std::ptr::null_mut();
+        }
+    };
+
     let classes: Vec<ClassInfo> = match serde_json::from_str(&classes_str) {
         Ok(c) => c,
         Err(e) => {
@@ -317,6 +319,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
+    drop(classes_str);
     
     let config = DumpConfig {
         detect_namespaces: detect_namespaces != 0,
@@ -371,15 +374,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
-    let namespaces_str: String = match env.get_string(&namespaces_json) {
-        Ok(s) => s.into(),
-        Err(_) => {
-            let _ = env.throw_new("java/io/IOException", "Invalid namespaces JSON");
-            return std::ptr::null_mut();
-        }
-    };
-    
+
     let classes: Vec<ClassInfo> = match serde_json::from_str(&classes_str) {
         Ok(c) => c,
         Err(e) => {
@@ -387,7 +382,16 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+    drop(classes_str);
+
+    let namespaces_str: String = match env.get_string(&namespaces_json) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid namespaces JSON");
+            return std::ptr::null_mut();
+        }
+    };
+
     let namespaces: Vec<NamespaceInfo> = match serde_json::from_str(&namespaces_str) {
         Ok(n) => n,
         Err(e) => {
@@ -395,6 +399,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
+    drop(namespaces_str);
     
     let config = DumpConfig {
         generate_comments: generate_comments != 0,
@@ -437,7 +442,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+
     let symbols: Vec<Symbol> = match serde_json::from_str(&symbols_str) {
         Ok(s) => s,
         Err(e) => {
@@ -445,6 +450,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
+    drop(symbols_str);
     
     let output: String = symbols.iter()
         .map(|s| {
@@ -494,31 +500,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
-    let symbols_str: String = match env.get_string(&symbols_json) {
-        Ok(s) => s.into(),
-        Err(_) => {
-            let _ = env.throw_new("java/io/IOException", "Invalid symbols JSON");
-            return std::ptr::null_mut();
-        }
-    };
-    
-    let classes_str: String = match env.get_string(&classes_json) {
-        Ok(s) => s.into(),
-        Err(_) => {
-            let _ = env.throw_new("java/io/IOException", "Invalid classes JSON");
-            return std::ptr::null_mut();
-        }
-    };
-    
-    let namespaces_str: String = match env.get_string(&namespaces_json) {
-        Ok(s) => s.into(),
-        Err(_) => {
-            let _ = env.throw_new("java/io/IOException", "Invalid namespaces JSON");
-            return std::ptr::null_mut();
-        }
-    };
-    
+
     let elf_info: ElfInfo = match serde_json::from_str(&elf_info_str) {
         Ok(e) => e,
         Err(e) => {
@@ -526,7 +508,16 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+    drop(elf_info_str);
+
+    let symbols_str: String = match env.get_string(&symbols_json) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid symbols JSON");
+            return std::ptr::null_mut();
+        }
+    };
+
     let symbols: Vec<Symbol> = match serde_json::from_str(&symbols_str) {
         Ok(s) => s,
         Err(e) => {
@@ -534,7 +525,16 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+    drop(symbols_str);
+
+    let classes_str: String = match env.get_string(&classes_json) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid classes JSON");
+            return std::ptr::null_mut();
+        }
+    };
+
     let classes: Vec<ClassInfo> = match serde_json::from_str(&classes_str) {
         Ok(c) => c,
         Err(e) => {
@@ -542,7 +542,16 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+    drop(classes_str);
+
+    let namespaces_str: String = match env.get_string(&namespaces_json) {
+        Ok(s) => s.into(),
+        Err(_) => {
+            let _ = env.throw_new("java/io/IOException", "Invalid namespaces JSON");
+            return std::ptr::null_mut();
+        }
+    };
+
     let namespaces: Vec<NamespaceInfo> = match serde_json::from_str(&namespaces_str) {
         Ok(n) => n,
         Err(e) => {
@@ -550,7 +559,8 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
             return std::ptr::null_mut();
         }
     };
-    
+    drop(namespaces_str);
+
     let result = DumpResult {
         elf_info,
         symbols,
@@ -567,9 +577,9 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
         total_namespaces: 0,
         dump_duration_ms: 0,
     };
-    
+
     let config = DumpConfig::default();
-    
+
     match EXPORTER.export(&result, &config) {
         Ok(json) => {
             match env.new_string(&json) {
@@ -592,7 +602,7 @@ pub extern "system" fn Java_com_neomods_libdumper_jni_NativeLibWrapper_00024Comp
     mut env: JNIEnv,
     _class: JClass,
 ) -> jstring {
-    let version = "1.0.0";
+    let version = "3.0.0";
     match env.new_string(version) {
         Ok(s) => s.into_raw(),
         Err(_) => {

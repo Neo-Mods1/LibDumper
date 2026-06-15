@@ -1,6 +1,6 @@
 [package]
 name = "neolib_dumper"
-version = "1.0.0"
+version = "3.0.0"
 edition = "2021"
 authors = ["Lib Dumper Developer"]
 description = "Native ELF analysis and symbol dumping backend for Lib Dumper"
