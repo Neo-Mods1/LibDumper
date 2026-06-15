@@ -2,7 +2,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use crate::types::{DumpResult, DumpConfig, ElfInfo, Symbol, ClassInfo, NamespaceInfo};
+use crate::types::{DumpResult, DumpConfig, Symbol, ClassInfo, NamespaceInfo};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JsonMetadata {

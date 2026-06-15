@@ -85,6 +85,10 @@ pub fn run_dump(
         symbol_table_written = true;
     }
 
+    let total_symbols = symbols.len();
+    let total_classes = classes.len();
+    let total_namespaces = namespaces.len();
+
     if config.generate_json {
         let result = DumpResult {
             elf_info,
@@ -114,7 +118,7 @@ pub fn run_dump(
     let stats = DumpStats {
         total_symbols,
         total_classes,
-        total_namespaces: namespaces.len(),
+        total_namespaces,
         dump_cpp_written,
         symbol_table_written,
         json_written,
